@@ -2,81 +2,114 @@
 <html lang="no">
   <head>
     <meta charset="utf-8" />
-    <title>Macé Cafe Admin</title>
+    <title>Macé Cafe — Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
-      body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:0;display:grid;place-items:center;min-height:100dvh;background:#f6f6f6;color:#222}
-      .box{background:#fff;border:1px solid #e5e5e5;border-radius:14px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.06);width:min(720px,92vw)}
-      .muted{opacity:.75}
-      code{background:#f0f0f0;border-radius:6px;padding:2px 6px}
-      .small{font-size:.9rem}
-      .hint{margin-top:10px;padding:10px 12px;border-radius:10px;background:#fff7e6;border:1px solid #f2d19d}
-      .ok{margin-top:10px;padding:8px 10px;border-radius:10px;background:#eefbf3;border:1px solid #bfe5ce}
-      details{margin-top:10px}
+      :root{ --border:#e6e6e6; --bg:#fafafa; --fg:#222; --muted:#6b7280; --brand:#4A3428; }
+      *{ box-sizing:border-box }
+      html,body{ height:100% }
+      body{ margin:0; background:var(--bg); color:var(--fg); font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif }
+      .adminbar{
+        position:sticky; top:0; z-index:9999; backdrop-filter:saturate(1.2) blur(6px);
+        background:rgba(255,255,255,.9); border-bottom:1px solid var(--border);
+      }
+      .bar-inner{
+        max-width:1200px; margin:0 auto; padding:.7rem 1rem; display:flex; gap:.75rem; align-items:center; justify-content:space-between;
+      }
+      .brand{ display:flex; gap:.75rem; align-items:baseline }
+      .brand .title{ font-weight:700; color:var(--brand) }
+      .brand .subtitle{ font-size:.95rem; color:var(--muted) }
+      .actions{ display:flex; gap:.5rem; align-items:center }
+      .btn{ display:inline-flex; align-items:center; gap:.4rem; border:1px solid var(--border); background:#fff; color:#111; padding:.5rem .7rem; border-radius:10px; text-decoration:none; font-weight:600; font-size:.95rem; }
+      .btn:hover{ background:#f7f7f7 }
+      .btn--primary{ background:var(--brand); color:#fff; border-color:var(--brand) }
+      .btn--primary:hover{ filter:brightness(0.95) }
+      .status{ font-size:.9rem; color:var(--muted) }
+      .pane{ max-width:1200px; margin:10px auto; padding:0 1rem }
+      .hint, .error{ margin-top:10px; padding:10px 12px; border-radius:10px }
+      .hint{ background:#eefbf3; border:1px solid #cfe9d9 }
+      .error{ background:#fff7e6; border:1px solid #f2d19d }
+      #nc-root{ /* Decap CMS mount */ }
     </style>
-    <!-- Netlify Identity (for innlogging) -->
+    <!-- Netlify Identity (innlogging) -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
-    <div class="box">
-      <h1>Åpner admin…</h1>
-      <p class="muted">Hvis dette vinduet står tomt mer enn noen sekunder, oppdater siden.</p>
-      <div id="status" class="ok" style="display:none"></div>
-      <div id="err" class="hint" style="display:none"></div>
-      <details id="tech" style="display:none"><summary>Teknisk info</summary><pre id="log" class="small"></pre></details>
+    <header class="adminbar">
+      <div class="bar-inner">
+        <div class="brand">
+          <div class="title">Macé Cafe</div>
+          <div class="subtitle">Admin</div>
+        </div>
+        <div class="actions">
+          <a class="btn" href="/">Til forsiden</a>
+          <button id="authBtn" class="btn">Logg inn</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="pane">
+      <div id="status" class="hint" style="display:none"></div>
+      <div id="err" class="error" style="display:none"></div>
     </div>
 
-    <script>
-      (async function boot(){
-        const log = (m) => (document.getElementById('log').textContent += m + "\n");
-        const show = (id, html) => { const el = document.getElementById(id); el.style.display='block'; if (html) el.innerHTML = html; };
+    <!-- Her rendres CMS-et -->
+    <div id="nc-root"></div>
 
-        // 1) Finn config.yml
+    <script>
+      // Topplinje: Logg inn/ut-knapp med Netlify Identity
+      (function authUI(){
+        const btn = document.getElementById('authBtn');
+        const update = () => {
+          if (!window.netlifyIdentity) return;
+          const user = window.netlifyIdentity.currentUser();
+          btn.textContent = user ? 'Logg ut' : 'Logg inn';
+        };
+        document.addEventListener('DOMContentLoaded', () => {
+          if (!window.netlifyIdentity) return;
+          window.netlifyIdentity.on('init', update);
+          window.netlifyIdentity.on('login', update);
+          window.netlifyIdentity.on('logout', update);
+          btn.onclick = () => {
+            const user = window.netlifyIdentity.currentUser();
+            if (user) window.netlifyIdentity.logout(); else window.netlifyIdentity.open('login');
+          };
+        });
+      })();
+
+      // Last Decap CMS stødig (flere kilder) og gi enkel status
+      (async function boot(){
+        const status = (m) => { const el = document.getElementById('status'); el.style.display='block'; el.innerHTML = m; };
+        const error  = (m) => { const el = document.getElementById('err'); el.style.display='block'; el.innerHTML = m; };
+
+        // Sjekk at config finnes
         try{
           const res = await fetch('/admin/config.yml', {cache:'no-store'});
-          log('GET /admin/config.yml -> ' + res.status);
-          if(!res.ok){
-            show('err', 'Finner ikke <code>/admin/config.yml</code> (status ' + res.status + ').<br>✔️ Løsning: Sjekk at filen ligger i <code>/admin</code> og heter <code>config.yml</code>.');
-            show('tech'); return;
-          } else {
-            show('status','Fant <code>config.yml</code>. Laster admin…');
-          }
+          if(!res.ok){ error('Fant ikke <code>/admin/config.yml</code>. Sjekk filplassering.'); return; }
+          status('Fant <code>config.yml</code> – åpner editor …');
         }catch(e){
-          show('err','Klarte ikke å hente <code>config.yml</code>. Oppdater siden om noen sekunder.');
-          show('tech'); log(e && (e.stack || e)); return;
-        }
-
-        // 2) Last Decap CMS fra 3 kilder (jsDelivr → unpkg → GitHub raw)
-        const SOURCES = [
-          'https://cdn.jsdelivr.net/npm/decap-cms@^3.0.0/dist/decap-cms.js',  // anbefalt i docs
-          'https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js',
-          'https://raw.githubusercontent.com/decaporg/decap-cms/main/packages/decap-cms/dist/decap-cms.js'
-        ];
-        async function loadOne(src){
-          return new Promise((resolve,reject)=>{
-            const s=document.createElement('script');
-            s.src=src; s.onload=resolve; s.onerror=()=>reject(new Error('Kunne ikke laste: '+src));
-            document.body.appendChild(s);
-          });
-        }
-        let loaded=false, lastErr=null;
-        for(const url of SOURCES){
-          try{ log('Laster ' + url); await loadOne(url); loaded=true; break; }
-          catch(e){ log(e.message); lastErr=e; }
-        }
-        if(!loaded){
-          show('err','Klarte ikke å laste admin fra offentlige CDN. Dette skyldes ofte bedriftsnettverk/annonsestopper som blokkerer <code>unpkg</code>/<code>jsdelivr</code>.<br>✔️ Løsning A: Skru av ad-block på <em>admin</em>-siden.<br>✔️ Løsning B: Be meg om en versjon der <code>decap-cms.js</code> ligger <em>lokalt</em> i repoet (jeg sender fil og instruks).');
-          show('tech'); log(lastErr && lastErr.message); return;
-        }
-
-        if (!window.netlifyIdentity){
-          show('err','Netlify Identity ble ikke lastet. Sjekk at Identity (Classic) er Enabled og Git Gateway er aktivert.');
-          show('tech'); log('window.netlifyIdentity = ' + typeof window.netlifyIdentity);
+          error('Klarte ikke å hente <code>config.yml</code>. Prøv å oppdatere siden.');
           return;
         }
 
-        show('status','Admin lastet. Logger deg inn om nødvendig…');
-        // Decap CMS auto-initialiserer når skriptet er lastet og /admin/config.yml finnes.
+        const SOURCES = [
+          'https://cdn.jsdelivr.net/npm/decap-cms@^3.0.0/dist/decap-cms.js',
+          'https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js',
+          'https://raw.githubusercontent.com/decaporg/decap-cms/main/packages/decap-cms/dist/decap-cms.js'
+        ];
+        function load(src){ return new Promise((ok,err)=>{ const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=()=>err(new Error('Kunne ikke laste '+src)); document.body.appendChild(s); });}
+        let ok=false, last=null;
+        for(const url of SOURCES){ try{ status('Laster editor …'); await load(url); ok=true; break; } catch(e){ last=e; } }
+        if(!ok){
+          error('Klarte ikke å laste editor fra CDN. Skru av eventuelle ad-blockers på denne siden. Gi beskjed om du vil at jeg legger <code>decap-cms.js</code> lokalt i repoet.');
+          console.warn(last);
+          return;
+        }
+        // CMS init – Decap bruker automatisk #nc-root hvis tilstede.
+        status('Klar.');
+        setTimeout(()=>{ document.getElementById('status').style.display='none'; }, 1200);
       })();
     </script>
   </body>
