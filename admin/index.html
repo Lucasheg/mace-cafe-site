@@ -6,47 +6,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:0;display:grid;place-items:center;min-height:100dvh;background:#f6f6f6;color:#222}
-      .box{background:#fff;border:1px solid #e5e5e5;border-radius:14px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.06);width:min(680px,92vw)}
+      .box{background:#fff;border:1px solid #e5e5e5;border-radius:14px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.06);width:min(720px,92vw)}
       .muted{opacity:.75}
       code{background:#f0f0f0;border-radius:6px;padding:2px 6px}
       .small{font-size:.9rem}
       .hint{margin-top:10px;padding:10px 12px;border-radius:10px;background:#fff7e6;border:1px solid #f2d19d}
+      .ok{margin-top:10px;padding:8px 10px;border-radius:10px;background:#eefbf3;border:1px solid #bfe5ce}
+      details{margin-top:10px}
     </style>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
     <div class="box">
       <h1>Åpner admin…</h1>
-      <p class="muted">Hvis dette vinduet står tomt mer enn noen sekunder, prøv å oppdatere.</p>
+      <p class="muted">Hvis dette vinduet står tomt mer enn noen sekunder, oppdater siden.</p>
+      <div id="status" class="ok" style="display:none"></div>
       <div id="err" class="hint" style="display:none"></div>
+      <details id="tech" style="display:none"><summary>Teknisk info</summary><pre id="log" class="small"></pre></details>
     </div>
 
     <script>
-      // Last Netlify CMS med fallback-CDN hvis første forsøk feiler
-      (function loadCMS(){
-        function showError(msg){
-          var el = document.getElementById('err');
-          el.style.display='block';
-          el.innerHTML = msg;
+      (async function boot(){
+        const log = (msg) => { const el=document.getElementById('log'); el.textContent += msg + "\\n"; };
+        const show = (id, html) => { const el=document.getElementById(id); el.style.display='block'; if (html) el.innerHTML = html; };
+
+        // 1) Sjekk at config.yml finnes
+        try{
+          const res = await fetch('/admin/config.yml', {cache:'no-store'});
+          log('GET /admin/config.yml -> ' + res.status);
+          if(!res.ok){
+            show('err', 'Finner ikke <code>/admin/config.yml</code> (status ' + res.status + ').<br>✔️ Løsning: Sjekk at filen heter <code>config.yml</code> og ligger i mappen <code>/admin</code>. Hvis repoet ditt bruker en annen branch enn <code>main</code>, endre <code>branch:</code> i <code>config.yml</code>.');
+            show('tech');
+            return;
+          } else {
+            show('status','Fant <code>config.yml</code>. Laster admin…');
+          }
+        }catch(e){
+          show('err','Klarte ikke å hente <code>config.yml</code>. Er nettstedet akkurat deployet? Oppdater siden om 10 sek.');
+          show('tech'); log(e && (e.stack || e));
+          return;
         }
-        var s = document.createElement('script');
-        s.src = 'https://unpkg.com/netlify-cms-app/dist/netlify-cms.js';
-        s.onload = function(){ /* CMS vil auto-initialisere via config.yml */ };
-        s.onerror = function(){
-          // Fallback til jsDelivr
-          var s2 = document.createElement('script');
-          s2.src = 'https://cdn.jsdelivr.net/npm/netlify-cms-app/dist/netlify-cms.js';
-          s2.onload = function(){};
-          s2.onerror = function(){
-            showError('Klarte ikke å laste admin. Sjekk nettlinjen, eller prøv igjen. Hvis feilen fortsetter: sørg for at <code>Identity (Classic)</code> og <code>Git Gateway</code> er aktivert på Netlify.');
-          };
-          document.body.appendChild(s2);
-        };
-        document.body.appendChild(s);
-        // Timeout-melding hvis noe henger
-        setTimeout(function(){
-          if(!window.CMS){ showError('Det tar uvanlig lang tid å åpne. Prøv å oppdatere siden (Cmd/Ctrl + R).'); }
-        }, 6000);
+
+        // 2) Last Netlify CMS fra CDN, med fallback
+        function loadScript(src){
+          return new Promise((resolve,reject)=>{
+            const s = document.createElement('script');
+            s.src = src; s.onload = resolve; s.onerror = () => reject(new Error('Kunne ikke laste: '+src));
+            document.body.appendChild(s);
+          });
+        }
+        try{
+          await loadScript('https://unpkg.com/netlify-cms-app/dist/netlify-cms.js');
+        }catch(e1){
+          log(e1.message);
+          try{
+            await loadScript('https://cdn.jsdelivr.net/npm/netlify-cms-app/dist/netlify-cms.js');
+          }catch(e2){
+            log(e2.message);
+            show('err','Klarte ikke å laste admin fra CDN. Sjekk nettlinjen, eller prøv igjen.');
+            show('tech');
+            return;
+          }
+        }
+
+        // 3) Identity og Git Gateway sanity-hints
+        if (!window.netlifyIdentity){
+          show('err','Netlify Identity ble ikke lastet. Sørg for at Identity (Classic) er Enabled på dette nettstedet.');
+          show('tech'); log('window.netlifyIdentity = ' + typeof window.netlifyIdentity);
+          return;
+        }
+
+        // CMS bør nå starte av seg selv (leser /admin/config.yml)
+        show('status','Admin lastet. Logger deg inn om nødvendig…');
       })();
     </script>
   </body>
