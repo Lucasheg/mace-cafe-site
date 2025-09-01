@@ -4,11 +4,50 @@
     <meta charset="utf-8" />
     <title>Macé Cafe Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- Netlify Identity (innlogging) -->
+    <style>
+      body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:0;display:grid;place-items:center;min-height:100dvh;background:#f6f6f6;color:#222}
+      .box{background:#fff;border:1px solid #e5e5e5;border-radius:14px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.06);width:min(680px,92vw)}
+      .muted{opacity:.75}
+      code{background:#f0f0f0;border-radius:6px;padding:2px 6px}
+      .small{font-size:.9rem}
+      .hint{margin-top:10px;padding:10px 12px;border-radius:10px;background:#fff7e6;border:1px solid #f2d19d}
+    </style>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
-    <!-- Selve CMS-et -->
-    <script src="https://unpkg.com/netlify-cms-app/dist/netlify-cms.js"></script>
+    <div class="box">
+      <h1>Åpner admin…</h1>
+      <p class="muted">Hvis dette vinduet står tomt mer enn noen sekunder, prøv å oppdatere.</p>
+      <div id="err" class="hint" style="display:none"></div>
+    </div>
+
+    <script>
+      // Last Netlify CMS med fallback-CDN hvis første forsøk feiler
+      (function loadCMS(){
+        function showError(msg){
+          var el = document.getElementById('err');
+          el.style.display='block';
+          el.innerHTML = msg;
+        }
+        var s = document.createElement('script');
+        s.src = 'https://unpkg.com/netlify-cms-app/dist/netlify-cms.js';
+        s.onload = function(){ /* CMS vil auto-initialisere via config.yml */ };
+        s.onerror = function(){
+          // Fallback til jsDelivr
+          var s2 = document.createElement('script');
+          s2.src = 'https://cdn.jsdelivr.net/npm/netlify-cms-app/dist/netlify-cms.js';
+          s2.onload = function(){};
+          s2.onerror = function(){
+            showError('Klarte ikke å laste admin. Sjekk nettlinjen, eller prøv igjen. Hvis feilen fortsetter: sørg for at <code>Identity (Classic)</code> og <code>Git Gateway</code> er aktivert på Netlify.');
+          };
+          document.body.appendChild(s2);
+        };
+        document.body.appendChild(s);
+        // Timeout-melding hvis noe henger
+        setTimeout(function(){
+          if(!window.CMS){ showError('Det tar uvanlig lang tid å åpne. Prøv å oppdatere siden (Cmd/Ctrl + R).'); }
+        }, 6000);
+      })();
+    </script>
   </body>
 </html>
