@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Macé Cafe – Kafé i Storgata 42, Molde</title>
+  <meta name="description" content="Kaffe, lunsj og noe søtt – midt i Molde sentrum. Vel bekomme!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --espresso:#4A3428; /* mørk brun */
+      --latte:#C8B7A6;    /* varm beige */
+      --foam:#F3EEE9;     /* lys bakgrunn */
+      --sea:#8FA8BF;      /* Molde-havn aksent */
+      --copper:#A36B3F;   /* kobberdetalj */
+      --ink:#1a1410;
+      --radius:22px;
+      --max:1200px;
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; color:var(--ink); background:var(--foam);
+      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans";
+      line-height:1.45; letter-spacing:.01em;
+    }
+    .h{font-family:"Playfair Display",serif; letter-spacing:.01em}
+    a{color:inherit; text-decoration:none}
+    img{max-width:100%; display:block}
+
+    /* --- Global layout helpers --- */
+    .wrap{width:min(100%, var(--max)); margin-inline:auto; padding-inline: clamp(16px, 4vw, 32px)}
+    .chip{border-radius:999px; padding:.5rem .9rem; background:rgba(255,255,255,.6); backdrop-filter: blur(8px); border:1px solid rgba(0,0,0,.06)}
+    .btn{display:inline-block; padding:.9rem 1.1rem; border-radius:14px; font-weight:600; background:var(--espresso); color:#fff; box-shadow:0 8px 18px rgba(0,0,0,.15); transition:transform .25s ease, box-shadow .25s ease}
+    .btn:hover{transform:translateY(-2px); box-shadow:0 12px 22px rgba(0,0,0,.18)}
+    .btn--ghost{background:transparent; color:var(--espresso); border:1px solid var(--espresso)}
+
+    /* --- Header --- */
+    header{position:sticky; top:0; z-index:50}
+    .nav{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:.8rem clamp(16px, 4vw, 32px);
+      background:linear-gradient(180deg, rgba(255,255,255,.62), rgba(255,255,255,.35));
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid rgba(0,0,0,.08);
+    }
+    .brand{display:flex; align-items:center; gap:.7rem}
+    .logo{
+      width:44px; height:44px; border-radius:12px; display:grid; place-items:center;
+      background:conic-gradient(from 210deg, var(--latte), var(--foam), var(--sea));
+      border:1px solid rgba(0,0,0,.08); box-shadow:inset 0 0 0 6px rgba(255,255,255,.35);
+      font-weight:700; color:var(--espresso)
+    }
+    .brand .name{font-weight:700; letter-spacing:.04em}
+    .menu{display:flex; gap:10px; align-items:center}
+    .menu a{padding:.55rem .85rem; border-radius:999px; border:1px solid rgba(0,0,0,.06); background:#fff8; backdrop-filter: blur(8px)}
+
+    /* --- Hero --- */
+    .hero{
+      position:relative; overflow:hidden; isolation:isolate; color:var(--espresso)
+    }
+    .hero__bg{
+      position:absolute; inset:0; z-index:-1; transform:translateZ(0);
+      background:
+        radial-gradient(1200px 500px at 85% -10%, rgba(163,107,63,.35), transparent 55%),
+        radial-gradient(900px 600px at -10% 10%, rgba(79,113,140,.20), transparent 60%),
+        radial-gradient(800px 500px at 50% 110%, rgba(200,183,166,.45), transparent 60%),
+        linear-gradient(180deg, #ffffff, var(--foam));
+      -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 300%22 preserveAspectRatio=%22none%22><path d=%22M0 0 H1600 V240 Q1200 300 800 220 T0 240 Z%22 fill=%22%23000%22/></svg>') bottom left / 100% 120% no-repeat;
+              mask: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 300%22 preserveAspectRatio=%22none%22><path d=%22M0 0 H1600 V240 Q1200 300 800 220 T0 240 Z%22 fill=%22%23000%22/></svg>') bottom left / 100% 120% no-repeat;
+    }
+    .hero .wrap{display:grid; grid-template-columns:1.15fr .85fr; align-items:center; gap:clamp(18px,4vw,48px); padding-block: clamp(48px, 10vw, 120px)}
+    .hero h1{font-size:clamp(40px, 7vw, 86px); line-height:1; margin:0}
+    .hero p{font-size:clamp(16px, 2.2vw, 20px); max-width:52ch; opacity:.9}
+
+    .hero__card{
+      justify-self:end; width:min(520px, 100%); border-radius:28px; padding:18px; 
+      background:linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,.5));
+      border:1px solid rgba(0,0,0,.07); backdrop-filter: blur(12px);
+      box-shadow:0 10px 28px rgba(0,0,0,.12);
+      transform:rotate(-1deg);
+    }
+    .hero__card-inner{border-radius:22px; background:#fff; padding:18px; border:1px dashed rgba(0,0,0,.12)}
+    .kv{display:grid; grid-template-columns:auto 1fr; gap:.2rem .8rem; align-items:center; font-size:15px}
+    .kv dt{font-weight:600; color:var(--espresso)}
+    .kv dd{margin:0; opacity:.9}
+
+    .hero__cta{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:18px}
+    .badge{font-size:.85rem; padding:.45rem .65rem; border-radius:999px; border:1px solid rgba(0,0,0,.08); background:var(--latte); color:var(--espresso)}
+
+    /* --- Scrolly gallery (kollasj) --- */
+    .collage{padding-block: clamp(36px, 8vw, 90px)}
+    .collage h2{font-size: clamp(28px, 4.5vw, 52px); margin:0 0 10px}
+    .collage p{max-width:60ch; opacity:.85}
+    .grid{margin-top:24px; display:grid; grid-template-columns:repeat(12, 1fr); gap:12px}
+    .card{position:relative; border-radius:20px; overflow:hidden; background:linear-gradient(180deg, #fff, #fff8); border:1px solid rgba(0,0,0,.06);
+      box-shadow:0 12px 30px rgba(0,0,0,.08); transform:rotate(var(--rot,0deg));
+      transition:transform .25s ease, box-shadow .25s ease}
+    .card:hover{transform:rotate(var(--rot,0deg)) translateY(-4px); box-shadow:0 16px 38px rgba(0,0,0,.12)}
+    .card__img{aspect-ratio:4/3; background:linear-gradient(120deg, var(--latte), var(--foam));
+      display:grid; place-items:center; color:var(--espresso); font-weight:700}
+    .card__cap{position:absolute; inset:auto 10px 10px 10px; padding:.6rem .8rem; border-radius:14px; background:rgba(255,255,255,.8); backdrop-filter: blur(10px); font-size:.95rem}
+
+    .span-3{grid-column:span 3}
+    .span-4{grid-column:span 4}
+    .span-5{grid-column:span 5}
+    .span-6{grid-column:span 6}
+    .row-2{grid-row:span 2}
+
+    @media (max-width: 900px){
+      .hero .wrap{grid-template-columns:1fr;}
+      .hero__card{justify-self:stretch; transform:none}
+      .grid{grid-template-columns:repeat(6, 1fr)}
+      .span-5{grid-column:span 6}
+      .span-6{grid-column:span 6}
+    }
+    @media (max-width: 600px){
+      .grid{grid-template-columns:repeat(4, 1fr)}
+      .span-3{grid-column:span 4}
+      .span-4{grid-column:span 4}
+    }
+
+    /* --- Meny showcase med kurvede kort --- */
+    .menu-section{padding-block: clamp(28px, 8vw, 90px); background:linear-gradient(180deg, transparent, rgba(200,183,166,.22));}
+    .menu-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; margin-top:18px}
+    .menu-card{border-radius:28px; border:1px solid rgba(0,0,0,.08); overflow:hidden; background:#fff; position:relative}
+    .menu-card::before{content:""; position:absolute; inset:-2px; border-radius:32px;
+      background:conic-gradient(from 180deg, transparent, rgba(163,107,63,.4), transparent 30%);
+      filter:blur(18px); opacity:.6; pointer-events:none}
+    .menu-card__inner{position:relative; padding:20px; z-index:1}
+    .menu-title{font-weight:700; color:var(--espresso)}
+    .menu-item{display:flex; justify-content:space-between; gap:12px; padding:10px 0; border-bottom:1px dashed rgba(0,0,0,.08)}
+    .menu-item:last-child{border-bottom:none}
+    .menu-item small{opacity:.7}
+    .v{display:inline-grid; place-items:center; width:22px; height:22px; border-radius:999px; border:1px solid rgba(0,0,0,.15); font-size:12px}
+
+    @media (max-width: 900px){.menu-grid{grid-template-columns:1fr}}
+
+    /* --- Map / Besøk --- */
+    .visit{padding-block: clamp(28px, 8vw, 90px)}
+    .visit .card{--rot:-.8deg}
+    .map{aspect-ratio:16/9; border:0; width:100%; border-radius:18px}
+
+    /* --- Footer --- */
+    footer{padding:22px; border-top:1px solid rgba(0,0,0,.08); background:#fff8; backdrop-filter: blur(8px)}
+
+    /* --- Motion preferences --- */
+    @media (prefers-reduced-motion: no-preference){
+      .reveal{opacity:0; transform:translateY(14px); animation:reveal .7s ease both; animation-timeline:view(); animation-range:entry 10% cover 30%}
+      @keyframes reveal{to{opacity:1; transform:none}}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="nav wrap" aria-label="Hovedmeny">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">MC</div>
+        <div class="name">Macé Cafe</div>
+      </div>
+      <div class="menu">
+        <a href="#meny">Meny</a>
+        <a href="#besok">Besøk oss</a>
+        <a class="chip" href="https://www.instagram.com/macecafemolde/" target="_blank" rel="noopener">Instagram</a>
+      </div>
+    </nav>
+  </header>
+
+  <section class="hero" id="hjem">
+    <div class="hero__bg" aria-hidden="true"></div>
+    <div class="wrap">
+      <div>
+        <div class="chip" style="display:inline-flex; gap:.5rem; align-items:center; background:rgba(255,255,255,.75)">
+          <span class="v" title="Plantebaserte valg">V</span>
+          <span>Plantebaserte valg tilgjengelig</span>
+        </div>
+        <h1 class="h" style="margin-top:14px">Vel bekomme til Macé Cafe</h1>
+        <p>Kaffe, lunsj og noe søtt – midt i Molde sentrum. Stikk innom for dagens lunsj, ta med en latte ut mot fjorden, eller finn et rolig hjørne inne.</p>
+        <div class="hero__cta">
+          <a class="btn" href="#meny">Se meny</a>
+          <a class="btn btn--ghost" href="#besok">Finn oss</a>
+        </div>
+      </div>
+
+      <aside class="hero__card reveal" aria-label="Nøkkelinformasjon">
+        <div class="hero__card-inner">
+          <dl class="kv">
+            <dt>Adresse</dt><dd>Storgata 42, 6413 Molde</dd>
+            <dt>Telefon</dt><dd><a href="tel:+4791176800">+47 911 76 800</a></dd>
+            <dt>Åpent</dt><dd>Man–Fre 09–18 · Lør 09–17</dd>
+            <dt>Sosialt</dt><dd><a href="https://www.instagram.com/macecafemolde/" target="_blank" rel="noopener">@macecafemolde</a></dd>
+          </dl>
+          <div class="badge" style="margin-top:12px" id="hours-note">Oppdaterte tider annonseres på Instagram</div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="collage wrap" aria-label="Smakebiter">
+    <div style="display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap">
+      <h2 class="h">Smakebiter fra disken</h2>
+      <span class="chip">Sesong, håndlaget og lokalt</span>
+    </div>
+    <p>Et lite utvalg av hva du kan forvente – endres jevnlig etter råvarer og sesong.</p>
+
+    <div class="grid" role="list">
+      <article class="card span-5 row-2 reveal" role="listitem" style="--rot:-1.6deg">
+        <div class="card__img" aria-hidden="true">Latte Art</div>
+        <div class="card__cap">Klassisk cappuccino med fløyelsmykt skum</div>
+      </article>
+      <article class="card span-3 reveal" role="listitem" style="--rot:.8deg">
+        <div class="card__img" aria-hidden="true">Frokost</div>
+        <div class="card__cap">Surdeigsbrød, egg & grønt</div>
+      </article>
+      <article class="card span-4 row-2 reveal" role="listitem" style="--rot:-.6deg">
+        <div class="card__img" aria-hidden="true">Kake</div>
+        <div class="card__cap">Brownie & pecan pie (også plantebasert)</div>
+      </article>
+      <article class="card span-6 reveal" role="listitem" style="--rot:.6deg">
+        <div class="card__img" aria-hidden="true">Lunsj</div>
+        <div class="card__cap">Dagens lunsj – spør i kassen</div>
+      </article>
+      <article class="card span-6 reveal" role="listitem" style="--rot:-.4deg">
+        <div class="card__img" aria-hidden="true">Iskaffe</div>
+        <div class="card__cap">Avkjølende glass med espresso & melk</div>
+      </article>
+    </div>
+  </section>
+
+  <section id="meny" class="menu-section" aria-label="Meny">
+    <div class="wrap">
+      <h2 class="h" style="margin:0">Meny (utvalg)</h2>
+      <div id="dagens" class="chip" style="margin:.5rem 0 1rem; display:none"></div>
+      <p style="opacity:.85; margin:.3rem 0 1rem">Dette er et eksempeloppsett – innholdet styres fra adminpanelet.</p>
+
+      <div class="menu-grid">
+        <div class="menu-card reveal">
+          <div class="menu-card__inner" id="menu-hot">
+            <div class="menu-title">Kaffe & varme drikker</div>
+            <!-- CMS vil fylle inn .menu-item her -->
+          </div>
+        </div>
+
+        <div class="menu-card reveal">
+          <div class="menu-card__inner" id="menu-lunch">
+            <div class="menu-title">Frokost & lunsj</div>
+          </div>
+        </div>
+
+        <div class="menu-card reveal">
+          <div class="menu-card__inner" id="menu-sweet">
+            <div class="menu-title">Søtt & kaldt</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap">
+        <span class="chip">Rediger alt via /admin</span>
+        <a class="btn" href="#besok">Bestill til kontoret?</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="besok" class="visit wrap" aria-label="Besøk oss">
+    <h2 class="h" style="margin:0 0 8px">Besøk oss</h2>
+    <p>Finn oss midt i Storgata – uteservering mot torget når været tillater det.</p>
+
+    <div class="grid" style="margin-top:18px">
+      <article class="card span-6 reveal">
+        <div class="card__img" style="padding:0">
+          <iframe class="map" title="Kart Storgata 42 Molde" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+            src="https://www.google.com/maps?q=Storgata%2042%2C%206413%20Molde&output=embed"></iframe>
+        </div>
+        <div class="card__cap" style="display:flex; justify-content:space-between; gap:10px; align-items:center">
+          <span>Storgata 42, 6413 Molde</span>
+          <a class="btn" style="padding:.55rem .9rem" target="_blank" rel="noopener" href="https://maps.google.com/?q=Storgata+42,+6413+Molde">Veibeskrivelse</a>
+        </div>
+      </article>
+
+      <article class="card span-6 reveal" style="--rot:.6deg">
+        <div class="card__img" aria-hidden="true">Tider & kontakt</div>
+        <div class="card__cap">
+          <div style="display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center">
+            <strong>Åpningstider</strong>
+            <span class="chip" id="hours-note-dup">Følg Insta for endringer</span>
+            <span>Man–Fre</span><span id="hours-weekdays">09:00 – 18:00</span>
+            <span>Lørdag</span><span id="hours-saturday">09:00 – 17:00</span>
+          </div>
+          <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap">
+            <a class="btn" href="tel:+4791176800">Ring oss</a>
+            <a class="btn btn--ghost" target="_blank" rel="noopener" href="https://www.instagram.com/macecafemolde/">@macecafemolde</a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap" style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap">
+      <div>&copy; <span id="year"></span> Macé Cafe · Org.nr. 933 813 142</div>
+      <div style="opacity:.8">Designsystem: Espresso · Latte · Skum</div>
+    </div>
+  </footer>
+
+  <script>
+    // Oppdater årstall i footer
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Enkel IntersectionObserver som fallback for reveal (for nettlesere uten view-timeline)
+    if (!CSS.supports('animation-timeline: view()')){
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach(e=>{ if(e.isIntersecting){ e.target.style.transition = 'opacity .6s ease, transform .6s ease'; e.target.style.opacity = 1; e.target.style.transform = 'none'; io.unobserve(e.target)} })
+      }, {threshold:.2});
+      document.querySelectorAll('.reveal').forEach(el=>{ el.style.opacity = 0; el.style.transform = 'translateY(14px)'; io.observe(el) })
+    }
+  </script>
+
+  <!-- CMS: Hent meny, åpningstider og dagens lunsj fra JSON-filer -->
+  <script>
+  (async () => {
+    const q = (s) => document.querySelector(s);
+
+    try {
+      const [menyRes, hoursRes, dagensRes] = await Promise.all([
+        fetch('/site_data/meny.json', {cache:'no-store'}),
+        fetch('/site_data/hours.json', {cache:'no-store'}),
+        fetch('/site_data/dagens.json', {cache:'no-store'})
+      ]);
+      const meny = await menyRes.json();
+      const hours = await hoursRes.json();
+      const dagens = await dagensRes.json();
+
+      function fillMenu(id, items) {
+        const box = document.getElementById(id);
+        if (!box || !items) return;
+        [...box.querySelectorAll('.menu-item')].forEach(el => el.remove());
+        items.forEach(it => {
+          const row = document.createElement('div');
+          row.className = 'menu-item';
+          const left = document.createElement('span');
+          left.textContent = it.title;
+          if (it.vegan) {
+            const v = document.createElement('span');
+            v.className = 'v'; v.title = 'Plantebasert'; v.textContent = 'V';
+            left.appendChild(document.createTextNode(' '));
+            left.appendChild(v);
+          }
+          const right = document.createElement('span');
+          right.textContent = it.price;
+          row.append(left, right);
+          box.appendChild(row);
+        });
+      }
+      fillMenu('menu-hot', meny.hotdrinks);
+      fillMenu('menu-lunch', meny.lunch);
+      fillMenu('menu-sweet', meny.dessert);
+
+      // Åpningstider
+      const ww = q('#hours-weekdays');
+      const sa = q('#hours-saturday');
+      if (ww && sa) {
+        ww.textContent = `${hours.weekdays_open} – ${hours.weekdays_close}`;
+        sa.textContent = `${hours.saturday_open} – ${hours.saturday_close}`;
+      }
+      const noteMain = q('#hours-note');
+      const noteDup = q('#hours-note-dup');
+      if (hours.note) {
+        if (noteMain) noteMain.textContent = hours.note;
+        if (noteDup) noteDup.textContent = hours.note;
+      }
+
+      // Dagens lunsj
+      const dagensEl = q('#dagens');
+      if (dagensEl && Array.isArray(dagens.items) && dagens.items.length) {
+        const tekst = `${dagens.title}: ${dagens.items.map(i => `${i.title} ${i.price}`).join(' · ')}`;
+        dagensEl.textContent = tekst;
+        dagensEl.style.display = 'inline-block';
+      }
+    } catch (e) {
+      console.warn('Kunne ikke laste CMS-data:', e);
+    }
+  })();
+  </script>
+
+  <!-- Strukturert data for lokal synlighet -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CafeOrCoffeeShop",
+    "name": "Macé Cafe",
+    "url": "https://macecafe.no/",
+    "telephone": "+47 911 76 800",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Storgata 42",
+      "addressLocality": "Molde",
+      "postalCode": "6413",
+      "addressCountry": "NO"
+    },
+    "openingHoursSpecification": [
+      {"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"], "opens": "09:00", "closes": "18:00"},
+      {"@type": "OpeningHoursSpecification", "dayOfWeek": ["Saturday"], "opens": "09:00", "closes": "17:00"}
+    ],
+    "servesCuisine": ["Coffee","Cafe","Bakery"],
+    "menu": "https://macecafe.no/#meny",
+    "image": "https://macecafe.no/og-image.jpg",
+    "priceRange": "NOK"
+  }
+  </script>
+</body>
+</html>
