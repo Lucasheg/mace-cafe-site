@@ -7,13 +7,12 @@ media_folder: "assets/uploads"
 public_folder: "/assets/uploads"
 
 editor:
-  preview: false   # skjul ubrukelig forhåndsvisning for JSON
+  preview: false
 
 collections:
   - name: "meny"
     label: "Meny"
-    label_singular: "Meny"
-    description: "Legg til/endre retter og priser. Vegan = V-merke i menyen."
+    description: "Legg til/endre retter og priser. Huk av 'Plantebasert' for V-merke."
     files:
       - file: "site_data/meny.json"
         label: "Kafémeny"
@@ -25,9 +24,9 @@ collections:
             collapsed: true
             summary: "{{title}} — {{price}}"
             fields:
-              - { label: "Navn", name: "title", widget: "string", hint: "F.eks. 'Latte' eller 'Cappuccino'." }
+              - { label: "Navn", name: "title", widget: "string", hint: "F.eks. Latte" }
               - { label: "Pris", name: "price", widget: "string", hint: "Skriv pris slik: 49,-" }
-              - { label: "Plantebasert", name: "vegan", widget: "boolean", required: false, default: false, hint: "Huk av for å vise V-merke." }
+              - { label: "Plantebasert (V)", name: "vegan", widget: "boolean", required: false, default: false }
 
           - label: "Frokost & lunsj"
             name: "lunch"
@@ -37,7 +36,7 @@ collections:
             fields:
               - { label: "Navn", name: "title", widget: "string" }
               - { label: "Pris", name: "price", widget: "string", hint: "F.eks. 129,-" }
-              - { label: "Plantebasert", name: "vegan", widget: "boolean", required: false, default: false }
+              - { label: "Plantebasert (V)", name: "vegan", widget: "boolean", required: false, default: false }
 
           - label: "Søtt & kaldt"
             name: "dessert"
@@ -47,33 +46,31 @@ collections:
             fields:
               - { label: "Navn", name: "title", widget: "string" }
               - { label: "Pris", name: "price", widget: "string" }
-              - { label: "Plantebasert", name: "vegan", widget: "boolean", required: false, default: false }
+              - { label: "Plantebasert (V)", name: "vegan", widget: "boolean", required: false, default: false }
 
   - name: "aapningstider"
     label: "Åpningstider"
-    label_singular: "Åpningstid"
-    description: "Vises under 'Tider & kontakt' på forsiden."
+    description: "Vises i info-boblen øverst."
     files:
       - file: "site_data/hours.json"
         label: "Åpningstider"
         name: "hours"
         fields:
-          - { label: "Hverdager – åpner",  name: "weekdays_open",  widget: "string", default: "09:00", hint: "Format HH:MM" }
-          - { label: "Hverdager – stenger", name: "weekdays_close", widget: "string", default: "18:00", hint: "Format HH:MM" }
-          - { label: "Lørdag – åpner",     name: "saturday_open",  widget: "string", default: "09:00" }
-          - { label: "Lørdag – stenger",    name: "saturday_close", widget: "string", default: "17:00" }
+          - { label: "Hverdager – åpner",  name: "weekdays_open",  widget: "string", default: "09:00", hint: "HH:MM" }
+          - { label: "Hverdager – stenger", name: "weekdays_close", widget: "string", default: "18:00", hint: "HH:MM" }
+          - { label: "Lørdag – åpner",     name: "saturday_open",  widget: "string", default: "09:00", hint: "HH:MM" }
+          - { label: "Lørdag – stenger",    name: "saturday_close", widget: "string", default: "17:00", hint: "HH:MM" }
           - { label: "Notis (valgfri)",     name: "note",           widget: "string", required: false, hint: "Kort beskjed som vises ved åpningstidene." }
 
   - name: "dagens"
-    label: "Dagens lunsj"
-    label_singular: "Dagens lunsj"
-    description: "Ruten 'Dagens lunsj' som chip over menyen."
+    label: "Dagens middag"
+    description: "Oppdater dagens retter. Vises som spotlight i toppen."
     files:
       - file: "site_data/dagens.json"
-        label: "Dagens lunsj"
+        label: "Dagens middag"
         name: "dagens"
         fields:
-          - { label: "Overskrift", name: "title", widget: "string", default: "Dagens lunsj" }
+          - { label: "Overskrift", name: "title", widget: "string", default: "Dagens middag", hint: "F.eks. 'Dagens middag' eller 'Dagens spesial'." }
           - label: "Retter"
             name: "items"
             widget: "list"
