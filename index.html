@@ -35,12 +35,11 @@
     a{color:inherit; text-decoration:none}
     img{max-width:100%; display:block}
     .wrap{width:min(100%, var(--max)); margin-inline:auto; padding-inline: clamp(16px, 4vw, 32px)}
-    .chip{border-radius:999px; padding:.5rem .9rem; background:rgba(255,255,255,.6); backdrop-filter: blur(8px); border:1px solid rgba(0,0,0,.06)}
     .btn{display:inline-block; padding:.9rem 1.1rem; border-radius:14px; font-weight:600; background:var(--espresso); color:#fff; box-shadow:0 8px 18px rgba(0,0,0,.15); transition:transform .25s ease, box-shadow .25s ease}
     .btn:hover{transform:translateY(-2px); box-shadow:0 12px 22px rgba(0,0,0,.18)}
     .btn--ghost{background:transparent; color:var(--espresso); border:1px solid var(--espresso)}
 
-    /* Header (renere lenker, ingen hvite bobler) */
+    /* Header – renere lenker */
     header{position:sticky; top:0; z-index:50}
     .nav{
       display:flex; align-items:center; justify-content:space-between; gap:12px;
@@ -93,19 +92,48 @@
     .kv dt{font-weight:600; color:var(--espresso)}
     .kv dd{margin:0; opacity:.9}
     .hero__cta{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:18px}
-    .badge{font-size:.85rem; padding:.45rem .65rem; border-radius:999px; border:1px solid rgba(0,0,0,.08); background:var(--latte); color:var(--espresso)}
 
-    /* Dagens middag — spotlight */
+    /* Dagens middag — spotlight (ny) */
     .spotlight{
-      grid-column:1 / -1; margin-top:-6px;
-      display:flex; align-items:center; gap:14px; flex-wrap:wrap;
-      background:linear-gradient(90deg, rgba(163,107,63,.12), rgba(200,183,166,.14));
-      border:1px solid rgba(163,107,63,.25); padding:14px 16px; border-radius:16px;
-      box-shadow:0 8px 20px rgba(0,0,0,.06);
+      grid-column:1 / -1; display:flex; align-items:center; gap:16px; flex-wrap:wrap; position:relative;
+      padding:16px 18px; border-radius:18px;
+      background:linear-gradient(135deg, rgba(163,107,63,.18), rgba(200,183,166,.18));
+      border:1px solid rgba(163,107,63,.28);
+      box-shadow:
+        0 12px 28px rgba(0,0,0,.08),
+        inset 0 1px 0 rgba(255,255,255,.6);
+      overflow:hidden;
     }
-    .spotlight .title{ font-weight:800; font-family:"Playfair Display",serif }
-    .spotlight ul{ list-style:none; padding:0; margin:0; display:flex; gap:12px; flex-wrap:wrap }
-    .spotlight li{ background:#fff; border:1px solid rgba(0,0,0,.06); padding:.4rem .6rem; border-radius:999px }
+    .spotlight::before{
+      /* myk "glow" bak tittel/chips */
+      content:""; position:absolute; inset:-30%; background:
+        radial-gradient(800px 300px at 20% 0%, rgba(255,255,255,.35), transparent 60%),
+        radial-gradient(600px 220px at 80% 100%, rgba(255,255,255,.25), transparent 65%);
+      pointer-events:none; filter:blur(8px);
+    }
+    .spotlight::after{
+      /* diskret "shimmer"-stripe */
+      content:""; position:absolute; inset:-2px; border-radius:20px;
+      background:conic-gradient(from 210deg, transparent 0 20%, rgba(255,255,255,.65) 20% 22%, transparent 22% 60%, rgba(255,255,255,.35) 60% 62%, transparent 62% 100%);
+      -webkit-mask:linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+      -webkit-mask-composite: xor; mask-composite: exclude;
+      padding:2px; opacity:.6; animation:shine 6s linear infinite;
+    }
+    @keyframes shine{ to { transform: rotate(360deg); } }
+
+    .spotlight .title{
+      font-weight:800; font-family:"Playfair Display",serif; font-size:clamp(18px, 2.2vw, 24px);
+      color:var(--espresso); position:relative; z-index:1;
+    }
+    .spotlight ul{
+      list-style:none; padding:0; margin:0; display:flex; gap:10px; flex-wrap:wrap; position:relative; z-index:1;
+    }
+    .spotlight li{
+      background:rgba(255,255,255,.75);
+      border:1px solid rgba(0,0,0,.06);
+      backdrop-filter: blur(6px);
+      padding:.5rem .7rem; border-radius:999px; font-weight:600;
+    }
 
     /* Smakebiter – desktop: grid */
     .collage{padding-block: clamp(36px, 8vw, 90px)}
@@ -133,7 +161,7 @@
       .span-6{grid-column:span 6}
     }
 
-    /* MOBIL: enkel horisontal scroller (ryddig, lesbar) */
+    /* MOBIL: horisontal scroller */
     @media (max-width: 600px){
       .grid{ display:flex; overflow-x:auto; gap:14px; padding:4px 6px 12px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
       .grid::-webkit-scrollbar{display:none}
@@ -166,7 +194,6 @@
     /* Footer */
     footer{padding:22px; border-top:1px solid rgba(0,0,0,.08); background:#fff8; backdrop-filter: blur(8px)}
 
-    /* Motion prefs */
     @media (prefers-reduced-motion: no-preference){
       .reveal{opacity:0; transform:translateY(14px); animation:reveal .7s ease both; animation-timeline:view(); animation-range:entry 10% cover 30%}
       @keyframes reveal{to{opacity:1; transform:none}}
@@ -191,11 +218,7 @@
     <div class="wrap">
       <!-- Venstre kolonne: intro -->
       <div>
-        <div class="chip" style="display:inline-flex; gap:.5rem; align-items:center; background:rgba(255,255,255,.75)">
-          <span class="v" title="Plantebaserte valg">V</span>
-          <span>Plantebaserte valg tilgjengelig</span>
-        </div>
-        <h1 class="h" style="margin-top:14px">Velkommen til Macé Cafe</h1>
+        <h1 class="h" style="margin-top:4px">Velkommen til Macé Cafe</h1>
         <p>Kaffe, lunsj og noe søtt – midt i Molde sentrum. Stikk innom for dagens middag eller finn et rolig hjørne inne.</p>
         <div class="hero__cta">
           <a class="btn" href="#meny">Se meny</a>
@@ -203,7 +226,7 @@
         </div>
       </div>
 
-      <!-- Dagens middag – spotlight (kommer FØR info-boblen) -->
+      <!-- Dagens middag – spotlight (ny stil) -->
       <div class="spotlight reveal" id="spotlight" style="display:none">
         <span class="title">Dagens middag</span>
         <ul id="spotlight-list"></ul>
@@ -218,7 +241,6 @@
             <dt>Åpent</dt><dd id="hours-line">Man–Fre 09–18 · Lør 09–17</dd>
             <dt>Sosialt</dt><dd><a href="https://www.instagram.com/macecafemolde/" target="_blank" rel="noopener">@macecafemolde</a></dd>
           </dl>
-          <div class="badge" style="margin-top:12px" id="hours-note">Oppdaterte tider annonseres på Instagram</div>
         </div>
       </aside>
     </div>
@@ -227,7 +249,7 @@
   <section class="collage wrap" aria-label="Smakebiter">
     <div style="display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap">
       <h2 class="h">Smakebiter fra disken</h2>
-      <span class="chip">Sveip for flere smakebiter</span>
+      <span style="border-radius:999px; padding:.35rem .6rem; background:rgba(255,255,255,.6); border:1px solid rgba(0,0,0,.06)">Sveip for flere</span>
     </div>
     <p>Et lite utvalg av hva du kan forvente – endres jevnlig etter råvarer og sesong.</p>
 
@@ -292,7 +314,6 @@
     <p>Finn oss midt i Storgata – uteservering mot torget når været tillater det.</p>
 
     <div class="grid" style="margin-top:18px">
-      <!-- Kartet beholdes -->
       <article class="card span-12 reveal">
         <div class="card__img" style="padding:0">
           <iframe class="map" title="Kart Storgata 42 Molde" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
@@ -303,7 +324,6 @@
           <a class="btn" style="padding:.55rem .9rem" target="_blank" rel="noopener" href="https://maps.google.com/?q=Storgata+42,+6413+Molde">Veibeskrivelse</a>
         </div>
       </article>
-      <!-- Fjernet "Tider & kontakt"-kortet -->
     </div>
   </section>
 
@@ -367,21 +387,19 @@
       fillMenu('menu-lunch', meny.lunch);
       fillMenu('menu-sweet', meny.dessert);
 
-      // Åpningstider (i info-boblen)
+      // Åpningstider (tekstlinje)
       const hoursLine = q('#hours-line');
       if (hoursLine) {
         hoursLine.textContent = `Man–Fre ${hours.weekdays_open} – ${hours.weekdays_close} · Lør ${hours.saturday_open} – ${hours.saturday_close}`;
       }
-      const noteMain = q('#hours-note');
-      if (hours.note && noteMain) noteMain.textContent = hours.note;
 
-      // Dagens middag – spotlight
+      // Dagens middag – spotlight (bruk tittel + items)
       const spot = q('#spotlight');
       const list = q('#spotlight-list');
       if (spot && list && Array.isArray(dagens.items) && dagens.items.length) {
-        // Bruk tittel fra JSON (om satt), ellers "Dagens middag"
         const titleEl = spot.querySelector('.title');
         if (dagens.title) titleEl.textContent = dagens.title;
+        list.innerHTML = '';
         dagens.items.forEach(i => {
           const li = document.createElement('li');
           li.textContent = i.price ? `${i.title} ${i.price}` : i.title;
