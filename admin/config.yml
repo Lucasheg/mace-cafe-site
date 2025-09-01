@@ -2,12 +2,18 @@ backend:
   name: git-gateway
   branch: main
 
+locale: "nb"
 media_folder: "assets/uploads"
 public_folder: "/assets/uploads"
+
+editor:
+  preview: false   # skjul ubrukelig forhåndsvisning for JSON
 
 collections:
   - name: "meny"
     label: "Meny"
+    label_singular: "Meny"
+    description: "Legg til/endre retter og priser. Vegan = V-merke i menyen."
     files:
       - file: "site_data/meny.json"
         label: "Kafémeny"
@@ -16,22 +22,28 @@ collections:
           - label: "Kaffe & varme drikker"
             name: "hotdrinks"
             widget: "list"
+            collapsed: true
+            summary: "{{title}} — {{price}}"
             fields:
-              - { label: "Navn", name: "title", widget: "string" }
-              - { label: "Pris", name: "price", widget: "string" }
-              - { label: "Plantebasert", name: "vegan", widget: "boolean", required: false, default: false }
+              - { label: "Navn", name: "title", widget: "string", hint: "F.eks. 'Latte' eller 'Cappuccino'." }
+              - { label: "Pris", name: "price", widget: "string", hint: "Skriv pris slik: 49,-" }
+              - { label: "Plantebasert", name: "vegan", widget: "boolean", required: false, default: false, hint: "Huk av for å vise V-merke." }
 
           - label: "Frokost & lunsj"
             name: "lunch"
             widget: "list"
+            collapsed: true
+            summary: "{{title}} — {{price}}"
             fields:
               - { label: "Navn", name: "title", widget: "string" }
-              - { label: "Pris", name: "price", widget: "string" }
+              - { label: "Pris", name: "price", widget: "string", hint: "F.eks. 129,-" }
               - { label: "Plantebasert", name: "vegan", widget: "boolean", required: false, default: false }
 
           - label: "Søtt & kaldt"
             name: "dessert"
             widget: "list"
+            collapsed: true
+            summary: "{{title}} — {{price}}"
             fields:
               - { label: "Navn", name: "title", widget: "string" }
               - { label: "Pris", name: "price", widget: "string" }
@@ -39,19 +51,23 @@ collections:
 
   - name: "aapningstider"
     label: "Åpningstider"
+    label_singular: "Åpningstid"
+    description: "Vises under 'Tider & kontakt' på forsiden."
     files:
       - file: "site_data/hours.json"
         label: "Åpningstider"
         name: "hours"
         fields:
-          - { label: "Hverdager – åpner",  name: "weekdays_open",  widget: "string", default: "09:00" }
-          - { label: "Hverdager – stenger", name: "weekdays_close", widget: "string", default: "18:00" }
+          - { label: "Hverdager – åpner",  name: "weekdays_open",  widget: "string", default: "09:00", hint: "Format HH:MM" }
+          - { label: "Hverdager – stenger", name: "weekdays_close", widget: "string", default: "18:00", hint: "Format HH:MM" }
           - { label: "Lørdag – åpner",     name: "saturday_open",  widget: "string", default: "09:00" }
           - { label: "Lørdag – stenger",    name: "saturday_close", widget: "string", default: "17:00" }
-          - { label: "Notis (valgfri)",     name: "note",           widget: "string", required: false }
+          - { label: "Notis (valgfri)",     name: "note",           widget: "string", required: false, hint: "Kort beskjed som vises ved åpningstidene." }
 
   - name: "dagens"
     label: "Dagens lunsj"
+    label_singular: "Dagens lunsj"
+    description: "Ruten 'Dagens lunsj' som chip over menyen."
     files:
       - file: "site_data/dagens.json"
         label: "Dagens lunsj"
@@ -61,7 +77,9 @@ collections:
           - label: "Retter"
             name: "items"
             widget: "list"
+            collapsed: true
+            summary: "{{title}} — {{price}}"
             fields:
               - { label: "Navn", name: "title", widget: "string" }
               - { label: "Pris", name: "price", widget: "string" }
-          - { label: "Oppdatert", name: "updated", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false }
+          - { label: "Oppdatert", name: "updated", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, hint: "Sett dagens dato når du oppdaterer." }
