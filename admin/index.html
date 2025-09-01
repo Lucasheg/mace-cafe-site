@@ -12,8 +12,9 @@
       html,body{ height:100% }
       body{ margin:0; background:var(--bg); color:var(--fg); font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif }
       .adminbar{
-        position:sticky; top:0; z-index:9999; backdrop-filter: blur(6px);
+        position:sticky; top:0; z-index:10; backdrop-filter: blur(6px);
         background:rgba(255,255,255,.95); border-bottom:1px solid var(--border);
+        transition: transform .2s ease, box-shadow .2s ease;
       }
       .bar-inner{
         max-width:1200px; margin:0 auto; padding:.7rem 1rem; display:flex; gap:.75rem; align-items:center; justify-content:space-between;
@@ -21,13 +22,13 @@
       .brand{ display:flex; gap:.6rem; align-items:baseline }
       .brand .title{ font-weight:800; color:var(--brand) }
       .brand .subtitle{ font-size:.95rem; color:var(--muted) }
-      .actions{ display:flex; gap:.5rem; align-items:center }
+      .actions{ display:flex; gap:.5rem; align-items:center; flex-wrap:wrap }
       .btn{ display:inline-flex; align-items:center; gap:.4rem; border:1px solid var(--border); background:#fff; color:#111; padding:.55rem .8rem; border-radius:10px; text-decoration:none; font-weight:600; font-size:.95rem; }
       .btn:hover{ background:#f7f7f7 }
       .btn--primary{ background:var(--brand); color:#fff; border-color:var(--brand) }
       .btn--primary:hover{ filter:brightness(0.95) }
 
-      /* Snarveis-"kort" før CMS laster (og fortsatt synlig i toppen) */
+      /* Snarveis-kort */
       .quick{
         max-width:1200px; margin:10px auto; padding:0 1rem; display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
       }
@@ -45,9 +46,13 @@
       .hint{ background:#eefbf3; border:1px solid #cfe9d9 }
       .error{ background:#fff7e6; border:1px solid #f2d19d }
 
-      #nc-root{ /* CMS mount */ }
+      /* CMS mount */
+      #nc-root{ position:relative; z-index:1 }
+
+      /* Når vi er inne i CMS-visninger (#/collections, #/media, #/workflow), gjem hjelpesakene */
+      body.cms-active .quick{ display:none }
+      body.cms-active .adminbar{ position:static; box-shadow:none; } /* lar CMS’ egen topp stå øverst og unngår overlapp */
     </style>
-    <!-- Netlify Identity -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
@@ -67,7 +72,7 @@
       </div>
     </header>
 
-    <!-- KJEMPEENKLE SNARVEIER (ett klikk) -->
+    <!-- ENKLE SNARVEIER -->
     <div class="quick">
       <a class="card" href="#/collections/meny">
         <div class="k">Meny</div>
@@ -88,11 +93,10 @@
       <div id="err" class="error" style="display:none"></div>
     </div>
 
-    <!-- Her rendres CMS-et -->
     <div id="nc-root"></div>
 
     <script>
-      // Topplinje: Logg inn/ut-knapp
+      // Logg inn/ut-knapp
       (function authUI(){
         const btn = document.getElementById('authBtn');
         const update = () => {
@@ -112,12 +116,19 @@
         });
       })();
 
+      // Gjem/vis adminbar + snarveier når vi er inni CMS-visningene
+      (function routeAwareness(){
+        const isCMS = () => /^#\/(collections|media|workflow)/.test(location.hash || '');
+        const apply = () => document.body.classList.toggle('cms-active', isCMS());
+        window.addEventListener('hashchange', apply);
+        document.addEventListener('DOMContentLoaded', apply);
+      })();
+
       // Last Decap CMS (med fallbacks)
       (async function boot(){
         const status = (m) => { const el = document.getElementById('status'); el.style.display='block'; el.innerHTML = m; };
         const error  = (m) => { const el = document.getElementById('err'); el.style.display='block'; el.innerHTML = m; };
 
-        // Sjekk config
         try{
           const res = await fetch('/admin/config.yml', {cache:'no-store'});
           if(!res.ok){ error('Fant ikke <code>/admin/config.yml</code>. Sjekk filplassering.'); return; }
