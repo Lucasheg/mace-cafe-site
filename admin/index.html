@@ -14,6 +14,7 @@
       .ok{margin-top:10px;padding:8px 10px;border-radius:10px;background:#eefbf3;border:1px solid #bfe5ce}
       details{margin-top:10px}
     </style>
+    <!-- Netlify Identity (for innlogging) -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
@@ -27,57 +28,55 @@
 
     <script>
       (async function boot(){
-        const log = (msg) => { const el=document.getElementById('log'); el.textContent += msg + "\\n"; };
-        const show = (id, html) => { const el=document.getElementById(id); el.style.display='block'; if (html) el.innerHTML = html; };
+        const log = (m) => (document.getElementById('log').textContent += m + "\n");
+        const show = (id, html) => { const el = document.getElementById(id); el.style.display='block'; if (html) el.innerHTML = html; };
 
-        // 1) Sjekk at config.yml finnes
+        // 1) Finn config.yml
         try{
           const res = await fetch('/admin/config.yml', {cache:'no-store'});
           log('GET /admin/config.yml -> ' + res.status);
           if(!res.ok){
-            show('err', 'Finner ikke <code>/admin/config.yml</code> (status ' + res.status + ').<br>✔️ Løsning: Sjekk at filen heter <code>config.yml</code> og ligger i mappen <code>/admin</code>. Hvis repoet ditt bruker en annen branch enn <code>main</code>, endre <code>branch:</code> i <code>config.yml</code>.');
-            show('tech');
-            return;
+            show('err', 'Finner ikke <code>/admin/config.yml</code> (status ' + res.status + ').<br>✔️ Løsning: Sjekk at filen ligger i <code>/admin</code> og heter <code>config.yml</code>.');
+            show('tech'); return;
           } else {
             show('status','Fant <code>config.yml</code>. Laster admin…');
           }
         }catch(e){
-          show('err','Klarte ikke å hente <code>config.yml</code>. Er nettstedet akkurat deployet? Oppdater siden om 10 sek.');
-          show('tech'); log(e && (e.stack || e));
-          return;
+          show('err','Klarte ikke å hente <code>config.yml</code>. Oppdater siden om noen sekunder.');
+          show('tech'); log(e && (e.stack || e)); return;
         }
 
-        // 2) Last Netlify CMS fra CDN, med fallback
-        function loadScript(src){
+        // 2) Last Decap CMS fra 3 kilder (jsDelivr → unpkg → GitHub raw)
+        const SOURCES = [
+          'https://cdn.jsdelivr.net/npm/decap-cms@^3.0.0/dist/decap-cms.js',  // anbefalt i docs
+          'https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js',
+          'https://raw.githubusercontent.com/decaporg/decap-cms/main/packages/decap-cms/dist/decap-cms.js'
+        ];
+        async function loadOne(src){
           return new Promise((resolve,reject)=>{
-            const s = document.createElement('script');
-            s.src = src; s.onload = resolve; s.onerror = () => reject(new Error('Kunne ikke laste: '+src));
+            const s=document.createElement('script');
+            s.src=src; s.onload=resolve; s.onerror=()=>reject(new Error('Kunne ikke laste: '+src));
             document.body.appendChild(s);
           });
         }
-        try{
-          await loadScript('https://unpkg.com/netlify-cms-app/dist/netlify-cms.js');
-        }catch(e1){
-          log(e1.message);
-          try{
-            await loadScript('https://cdn.jsdelivr.net/npm/netlify-cms-app/dist/netlify-cms.js');
-          }catch(e2){
-            log(e2.message);
-            show('err','Klarte ikke å laste admin fra CDN. Sjekk nettlinjen, eller prøv igjen.');
-            show('tech');
-            return;
-          }
+        let loaded=false, lastErr=null;
+        for(const url of SOURCES){
+          try{ log('Laster ' + url); await loadOne(url); loaded=true; break; }
+          catch(e){ log(e.message); lastErr=e; }
+        }
+        if(!loaded){
+          show('err','Klarte ikke å laste admin fra offentlige CDN. Dette skyldes ofte bedriftsnettverk/annonsestopper som blokkerer <code>unpkg</code>/<code>jsdelivr</code>.<br>✔️ Løsning A: Skru av ad-block på <em>admin</em>-siden.<br>✔️ Løsning B: Be meg om en versjon der <code>decap-cms.js</code> ligger <em>lokalt</em> i repoet (jeg sender fil og instruks).');
+          show('tech'); log(lastErr && lastErr.message); return;
         }
 
-        // 3) Identity og Git Gateway sanity-hints
         if (!window.netlifyIdentity){
-          show('err','Netlify Identity ble ikke lastet. Sørg for at Identity (Classic) er Enabled på dette nettstedet.');
+          show('err','Netlify Identity ble ikke lastet. Sjekk at Identity (Classic) er Enabled og Git Gateway er aktivert.');
           show('tech'); log('window.netlifyIdentity = ' + typeof window.netlifyIdentity);
           return;
         }
 
-        // CMS bør nå starte av seg selv (leser /admin/config.yml)
         show('status','Admin lastet. Logger deg inn om nødvendig…');
+        // Decap CMS auto-initialiserer når skriptet er lastet og /admin/config.yml finnes.
       })();
     </script>
   </body>
