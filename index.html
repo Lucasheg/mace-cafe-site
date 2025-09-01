@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+
   <!-- Netlify Identity (må være på siden som åpnes etter 'Accept invite') -->
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script>
@@ -24,6 +25,7 @@
       }
     });
   </script>
+
   <style>
     :root{
       --espresso:#4A3428; /* mørk brun */
@@ -46,12 +48,14 @@
     a{color:inherit; text-decoration:none}
     img{max-width:100%; display:block}
 
+    /* --- Global layout helpers --- */
     .wrap{width:min(100%, var(--max)); margin-inline:auto; padding-inline: clamp(16px, 4vw, 32px)}
     .chip{border-radius:999px; padding:.5rem .9rem; background:rgba(255,255,255,.6); backdrop-filter: blur(8px); border:1px solid rgba(0,0,0,.06)}
     .btn{display:inline-block; padding:.9rem 1.1rem; border-radius:14px; font-weight:600; background:var(--espresso); color:#fff; box-shadow:0 8px 18px rgba(0,0,0,.15); transition:transform .25s ease, box-shadow .25s ease}
     .btn:hover{transform:translateY(-2px); box-shadow:0 12px 22px rgba(0,0,0,.18)}
     .btn--ghost{background:transparent; color:var(--espresso); border:1px solid var(--espresso)}
 
+    /* --- Header --- */
     header{position:sticky; top:0; z-index:50}
     .nav{
       display:flex; align-items:center; justify-content:space-between; gap:12px;
@@ -61,19 +65,18 @@
       border-bottom:1px solid rgba(0,0,0,.08);
     }
     .brand{display:flex; align-items:center; gap:.7rem}
-    .logo{
-      width:44px; height:44px; border-radius:12px; display:grid; place-items:center;
-      background:conic-gradient(from 210deg, var(--latte), var(--foam), var(--sea));
-      border:1px solid rgba(0,0,0,.08); box-shadow:inset 0 0 0 6px rgba(255,255,255,.35);
-      font-weight:700; color:var(--espresso)
+    .brand .name{
+      font-family:"Playfair Display",serif;
+      font-weight:800;
+      letter-spacing:.02em;
+      font-size:clamp(24px, 3.6vw, 38px); /* STØRRE NAVN */
+      line-height:1;
     }
-    .brand .name{font-weight:700; letter-spacing:.04em}
     .menu{display:flex; gap:10px; align-items:center}
     .menu a{padding:.55rem .85rem; border-radius:999px; border:1px solid rgba(0,0,0,.06); background:#fff8; backdrop-filter: blur(8px)}
 
-    .hero{
-      position:relative; overflow:hidden; isolation:isolate; color:var(--espresso)
-    }
+    /* --- Hero --- */
+    .hero{ position:relative; overflow:hidden; isolation:isolate; color:var(--espresso) }
     .hero__bg{
       position:absolute; inset:0; z-index:-1; transform:translateZ(0);
       background:
@@ -103,6 +106,7 @@
     .hero__cta{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:18px}
     .badge{font-size:.85rem; padding:.45rem .65rem; border-radius:999px; border:1px solid rgba(0,0,0,.08); background:var(--latte); color:var(--espresso)}
 
+    /* --- Smakebiter --- */
     .collage{padding-block: clamp(36px, 8vw, 90px)}
     .collage h2{font-size: clamp(28px, 4.5vw, 52px); margin:0 0 10px}
     .collage p{max-width:60ch; opacity:.85}
@@ -115,6 +119,7 @@
       display:grid; place-items:center; color:var(--espresso); font-weight:700}
     .card__cap{position:absolute; inset:auto 10px 10px 10px; padding:.6rem .8rem; border-radius:14px; background:rgba(255,255,255,.8); backdrop-filter: blur(10px); font-size:.95rem}
 
+    /* grid spans for variety (desktop) */
     .span-3{grid-column:span 3}
     .span-4{grid-column:span 4}
     .span-5{grid-column:span 5}
@@ -128,12 +133,27 @@
       .span-5{grid-column:span 6}
       .span-6{grid-column:span 6}
     }
+
+    /* MOBIL: gjør Smakebiter til en swipebar karusell */
     @media (max-width: 600px){
-      .grid{grid-template-columns:repeat(4, 1fr)}
-      .span-3{grid-column:span 4}
-      .span-4{grid-column:span 4}
+      .grid{
+        display:grid;
+        grid-auto-flow: column;
+        grid-auto-columns: 85%;
+        overflow-x:auto;
+        gap:14px;
+        padding-bottom:10px;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+      }
+      .grid::-webkit-scrollbar{ display:none; }
+      .card{ scroll-snap-align: start; min-height: 260px; transform:none !important; }
+      .card__img{ aspect-ratio: 16/10; }
+      /* nullstill spans så karusellen blir jevn */
+      .span-3, .span-4, .span-5, .span-6, .row-2 { grid-column:auto; grid-row:auto; }
     }
 
+    /* --- Meny showcase med kurvede kort --- */
     .menu-section{padding-block: clamp(28px, 8vw, 90px); background:linear-gradient(180deg, transparent, rgba(200,183,166,.22));}
     .menu-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; margin-top:18px}
     .menu-card{border-radius:28px; border:1px solid rgba(0,0,0,.08); overflow:hidden; background:#fff; position:relative}
@@ -146,15 +166,17 @@
     .menu-item:last-child{border-bottom:none}
     .menu-item small{opacity:.7}
     .v{display:inline-grid; place-items:center; width:22px; height:22px; border-radius:999px; border:1px solid rgba(0,0,0,.15); font-size:12px}
-
     @media (max-width: 900px){.menu-grid{grid-template-columns:1fr}}
 
+    /* --- Map / Besøk --- */
     .visit{padding-block: clamp(28px, 8vw, 90px)}
     .visit .card{--rot:-.8deg}
     .map{aspect-ratio:16/9; border:0; width:100%; border-radius:18px}
 
+    /* --- Footer --- */
     footer{padding:22px; border-top:1px solid rgba(0,0,0,.08); background:#fff8; backdrop-filter: blur(8px)}
 
+    /* --- Motion preferences --- */
     @media (prefers-reduced-motion: no-preference){
       .reveal{opacity:0; transform:translateY(14px); animation:reveal .7s ease both; animation-timeline:view(); animation-range:entry 10% cover 30%}
       @keyframes reveal{to{opacity:1; transform:none}}
@@ -165,7 +187,7 @@
   <header>
     <nav class="nav wrap" aria-label="Hovedmeny">
       <div class="brand">
-        <div class="logo" aria-hidden="true">MC</div>
+        <!-- Fjernet logoen -->
         <div class="name">Macé Cafe</div>
       </div>
       <div class="menu">
@@ -209,7 +231,7 @@
   <section class="collage wrap" aria-label="Smakebiter">
     <div style="display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap">
       <h2 class="h">Smakebiter fra disken</h2>
-      <span class="chip">Sesong, håndlaget og lokalt</span>
+      <span class="chip">Sveip for flere smakebiter</span>
     </div>
     <p>Et lite utvalg av hva du kan forvente – endres jevnlig etter råvarer og sesong.</p>
 
