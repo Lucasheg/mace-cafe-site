@@ -5,35 +5,49 @@
     <title>Macé Cafe — Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-      :root{ --border:#e6e6e6; --bg:#fafafa; --fg:#222; --muted:#6b7280; --brand:#4A3428; }
+      :root{ --border:#e6e6e6; --bg:#fafafa; --fg:#1f2937; --muted:#6b7280; --brand:#4A3428; }
       *{ box-sizing:border-box }
       html,body{ height:100% }
       body{ margin:0; background:var(--bg); color:var(--fg); font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif }
       .adminbar{
-        position:sticky; top:0; z-index:9999; backdrop-filter:saturate(1.2) blur(6px);
-        background:rgba(255,255,255,.9); border-bottom:1px solid var(--border);
+        position:sticky; top:0; z-index:9999; backdrop-filter: blur(6px);
+        background:rgba(255,255,255,.95); border-bottom:1px solid var(--border);
       }
       .bar-inner{
         max-width:1200px; margin:0 auto; padding:.7rem 1rem; display:flex; gap:.75rem; align-items:center; justify-content:space-between;
       }
-      .brand{ display:flex; gap:.75rem; align-items:baseline }
-      .brand .title{ font-weight:700; color:var(--brand) }
+      .brand{ display:flex; gap:.6rem; align-items:baseline }
+      .brand .title{ font-weight:800; color:var(--brand) }
       .brand .subtitle{ font-size:.95rem; color:var(--muted) }
       .actions{ display:flex; gap:.5rem; align-items:center }
-      .btn{ display:inline-flex; align-items:center; gap:.4rem; border:1px solid var(--border); background:#fff; color:#111; padding:.5rem .7rem; border-radius:10px; text-decoration:none; font-weight:600; font-size:.95rem; }
+      .btn{ display:inline-flex; align-items:center; gap:.4rem; border:1px solid var(--border); background:#fff; color:#111; padding:.55rem .8rem; border-radius:10px; text-decoration:none; font-weight:600; font-size:.95rem; }
       .btn:hover{ background:#f7f7f7 }
       .btn--primary{ background:var(--brand); color:#fff; border-color:var(--brand) }
       .btn--primary:hover{ filter:brightness(0.95) }
-      .status{ font-size:.9rem; color:var(--muted) }
+
+      /* Snarveis-"kort" før CMS laster (og fortsatt synlig i toppen) */
+      .quick{
+        max-width:1200px; margin:10px auto; padding:0 1rem; display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
+      }
+      .card{
+        background:#fff; border:1px solid var(--border); border-radius:14px; padding:16px; text-decoration:none; color:inherit;
+        display:flex; flex-direction:column; gap:6px; transition:transform .15s ease, box-shadow .15s ease;
+      }
+      .card:hover{ transform:translateY(-2px); box-shadow:0 10px 24px rgba(0,0,0,.06) }
+      .card .k{ font-weight:700 }
+      .card .d{ color:var(--muted) }
+      @media (max-width: 800px){ .quick{ grid-template-columns:1fr } }
+
       .pane{ max-width:1200px; margin:10px auto; padding:0 1rem }
       .hint, .error{ margin-top:10px; padding:10px 12px; border-radius:10px }
       .hint{ background:#eefbf3; border:1px solid #cfe9d9 }
       .error{ background:#fff7e6; border:1px solid #f2d19d }
-      #nc-root{ /* Decap CMS mount */ }
+
+      #nc-root{ /* CMS mount */ }
     </style>
-    <!-- Netlify Identity (innlogging) -->
+    <!-- Netlify Identity -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
@@ -45,10 +59,29 @@
         </div>
         <div class="actions">
           <a class="btn" href="/">Til forsiden</a>
+          <a class="btn" href="#/collections/meny">Meny</a>
+          <a class="btn" href="#/collections/aapningstider">Åpningstider</a>
+          <a class="btn" href="#/collections/dagens">Dagens middag</a>
           <button id="authBtn" class="btn">Logg inn</button>
         </div>
       </div>
     </header>
+
+    <!-- KJEMPEENKLE SNARVEIER (ett klikk) -->
+    <div class="quick">
+      <a class="card" href="#/collections/meny">
+        <div class="k">Meny</div>
+        <div class="d">Legg til / endre retter og priser</div>
+      </a>
+      <a class="card" href="#/collections/aapningstider">
+        <div class="k">Åpningstider</div>
+        <div class="d">Justér tider og vis notis</div>
+      </a>
+      <a class="card" href="#/collections/dagens">
+        <div class="k">Dagens middag</div>
+        <div class="d">Oppdater dagens retter</div>
+      </a>
+    </div>
 
     <div class="pane">
       <div id="status" class="hint" style="display:none"></div>
@@ -59,7 +92,7 @@
     <div id="nc-root"></div>
 
     <script>
-      // Topplinje: Logg inn/ut-knapp med Netlify Identity
+      // Topplinje: Logg inn/ut-knapp
       (function authUI(){
         const btn = document.getElementById('authBtn');
         const update = () => {
@@ -79,20 +112,17 @@
         });
       })();
 
-      // Last Decap CMS stødig (flere kilder) og gi enkel status
+      // Last Decap CMS (med fallbacks)
       (async function boot(){
         const status = (m) => { const el = document.getElementById('status'); el.style.display='block'; el.innerHTML = m; };
         const error  = (m) => { const el = document.getElementById('err'); el.style.display='block'; el.innerHTML = m; };
 
-        // Sjekk at config finnes
+        // Sjekk config
         try{
           const res = await fetch('/admin/config.yml', {cache:'no-store'});
           if(!res.ok){ error('Fant ikke <code>/admin/config.yml</code>. Sjekk filplassering.'); return; }
           status('Fant <code>config.yml</code> – åpner editor …');
-        }catch(e){
-          error('Klarte ikke å hente <code>config.yml</code>. Prøv å oppdatere siden.');
-          return;
-        }
+        }catch(e){ error('Klarte ikke å hente <code>config.yml</code>. Oppdater siden.'); return; }
 
         const SOURCES = [
           'https://cdn.jsdelivr.net/npm/decap-cms@^3.0.0/dist/decap-cms.js',
@@ -100,16 +130,11 @@
           'https://raw.githubusercontent.com/decaporg/decap-cms/main/packages/decap-cms/dist/decap-cms.js'
         ];
         function load(src){ return new Promise((ok,err)=>{ const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=()=>err(new Error('Kunne ikke laste '+src)); document.body.appendChild(s); });}
-        let ok=false, last=null;
-        for(const url of SOURCES){ try{ status('Laster editor …'); await load(url); ok=true; break; } catch(e){ last=e; } }
-        if(!ok){
-          error('Klarte ikke å laste editor fra CDN. Skru av eventuelle ad-blockers på denne siden. Gi beskjed om du vil at jeg legger <code>decap-cms.js</code> lokalt i repoet.');
-          console.warn(last);
-          return;
-        }
-        // CMS init – Decap bruker automatisk #nc-root hvis tilstede.
-        status('Klar.');
-        setTimeout(()=>{ document.getElementById('status').style.display='none'; }, 1200);
+        let ok=false;
+        for(const url of SOURCES){ try{ await load(url); ok=true; break; } catch(e){} }
+        if(!ok){ error('Klarte ikke å laste editor fra CDN. Skru av eventuelle ad-blockers, eller si ifra så legger jeg inn en lokal fil.'); return; }
+        status('Klar. Klikk en snarvei over om du ikke ser menyen med en gang.');
+        setTimeout(()=>{ document.getElementById('status').style.display='none'; }, 1500);
       })();
     </script>
   </body>
