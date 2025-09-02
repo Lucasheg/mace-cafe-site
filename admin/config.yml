@@ -10,33 +10,36 @@ editor:
   preview: false
 
 collections:
-  # ✅ NY: Forside-bilder (hero + smakebiter-galleri)
+  # FORSIDE-BILDER (hero + smakebiter)
   - name: "forside"
     label: "Forside-bilder"
     files:
       - file: "site_data/home.json"
-        label: "Forside"
         name: "home"
+        label: "Forside"
+        format: "json"        # ⬅️ VIKTIG: si fra at dette er JSON
         fields:
-          - { label: "Velkomstbilde (høyre for 'Velkommen')", name: "hero_image", widget: "image", allow_multiple: false, required: false }
-          - { label: "Alternativ tekst (for skjermleser/SEO)", name: "hero_image_alt", widget: "string", required: false }
-          - label: "Smakebiter fra disken (bilder)"
+          - { label: "Velkomstbilde (ved siden av 'Velkommen')", name: "hero_image", widget: "image", allow_multiple: false, required: false, hint: "Klikk for å laste opp fra enheten din." }
+          - { label: "Alternativ tekst (tilgjengelighet/SEO)", name: "hero_image_alt", widget: "string", required: false }
+          - label: "Smakebiter fra disken"
             name: "collage"
             widget: "list"
             collapsed: true
             summary: "{{title}}"
             fields:
-              - { label: "Tittel (kort)", name: "title", widget: "string", hint: "F.eks. 'Latte Art' eller 'Brownie'" }
-              - { label: "Bilde", name: "image", widget: "image", allow_multiple: false }
+              - { label: "Tittel (kort)", name: "title", widget: "string" }
+              - { label: "Bilde", name: "image", widget: "image", allow_multiple: false, hint: "Last opp fra enheten eller dra bildet hit." }
               - { label: "Bildetekst (valgfritt)", name: "caption", widget: "string", required: false }
 
+  # MENY
   - name: "meny"
     label: "Meny"
     description: "Legg til/endre retter og priser. Huk av 'Plantebasert' for V-merke."
     files:
       - file: "site_data/meny.json"
-        label: "Kafémeny"
         name: "meny"
+        label: "Kafémeny"
+        format: "json"        # ⬅️ VIKTIG
         fields:
           - label: "Kaffe & varme drikker"
             name: "hotdrinks"
@@ -66,13 +69,15 @@ collections:
               - { label: "Pris", name: "price", widget: "string" }
               - { label: "Plantebasert (V)", name: "vegan", widget: "boolean", required: false, default: false }
 
+  # ÅPNINGSTIDER
   - name: "aapningstider"
     label: "Åpningstider"
     description: "Vises i info-boblen øverst."
     files:
       - file: "site_data/hours.json"
-        label: "Åpningstider"
         name: "hours"
+        label: "Åpningstider"
+        format: "json"        # ⬅️ VIKTIG
         fields:
           - { label: "Hverdager – åpner",  name: "weekdays_open",  widget: "string", default: "09:00", hint: "HH:MM" }
           - { label: "Hverdager – stenger", name: "weekdays_close", widget: "string", default: "18:00", hint: "HH:MM" }
@@ -80,17 +85,19 @@ collections:
           - { label: "Lørdag – stenger",    name: "saturday_close", widget: "string", default: "17:00" }
           - { label: "Notis (valgfri)",     name: "note",           widget: "string", required: false }
 
+  # DAGENS MIDDAG (med bilde)
   - name: "dagens"
     label: "Dagens middag"
     description: "Vises i spotlight rett under introen."
     files:
       - file: "site_data/dagens.json"
-        label: "Dagens middag"
         name: "dagens"
+        label: "Dagens middag"
+        format: "json"        # ⬅️ VIKTIG
         fields:
           - { label: "Overskrift", name: "title", widget: "string", default: "Dagens middag" }
           - { label: "Undertekst (liten)", name: "subtitle", widget: "string", required: false, hint: "F.eks. 'Serveres 12–16'." }
-          - { label: "Bilde (valgfritt)", name: "image", widget: "image", required: false, allow_multiple: false }
+          - { label: "Bilde (valgfritt)", name: "image", widget: "image", required: false, allow_multiple: false, hint: "Klikk for å laste opp fra enheten din." }
           - label: "Retter"
             name: "items"
             widget: "list"
