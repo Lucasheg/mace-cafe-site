@@ -73,7 +73,10 @@
       -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 300%22 preserveAspectRatio=%22none%22><path d=%22M0 0 H1600 V240 Q1200 300 800 220 T0 240 Z%22 fill=%22%23000%22/></svg>') bottom left / 100% 120% no-repeat;
               mask: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 300%22 preserveAspectRatio=%22none%22><path d=%22M0 0 H1600 V240 Q1200 300 800 220 T0 240 Z%22 fill=%22%23000%22/></svg>') bottom left / 100% 120% no-repeat;
     }
-    .hero .wrap{display:grid; grid-template-columns:1.1fr .9fr; align-items:center; gap:clamp(18px,4vw,48px); padding-block: clamp(48px, 10vw, 120px); position:relative}
+    .hero .wrap{
+      display:grid; grid-template-columns:1.1fr .9fr; align-items:center;
+      gap:clamp(18px,4vw,48px); padding-block: clamp(48px, 10vw, 120px); position:relative
+    }
     .hero h1{font-size:clamp(40px, 7vw, 86px); line-height:1; margin:0}
     .hero p{font-size:clamp(16px, 2.2vw, 20px); max-width:52ch; opacity:.9}
     .hero__cta{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:18px}
@@ -116,7 +119,7 @@
       background:linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,.18) 100%);
     }
 
-    /* Info-kort */
+    /* Info-kort (original i hero) */
     .hero__card{
       border-radius:18px; background:#fff; border:1px solid rgba(0,0,0,.08); box-shadow:0 10px 26px rgba(0,0,0,.10);
       padding:16px; align-self:start; grid-column:1 / -1;
@@ -170,24 +173,46 @@
       @keyframes reveal{to{opacity:1; transform:none}}
     }
 
-    /* RESPONSIVE */
+    /* DESKTOP finjusteringer (punkt 4) */
     @media (min-width: 900px){
-      /* desktop plasseringsjusteringer */
-      .hero__card{ grid-column: 2; } /* info-kort i høyre kolonne */
+      .hero .wrap{
+        padding-block: clamp(24px, 6vw, 72px);  /* løft seksjonen opp */
+        align-items: start;                      /* align topp tekst = topp bilde */
+      }
+      .hero h1{
+        font-size: clamp(34px, 5.8vw, 72px);     /* ett hakk mindre */
+        margin-top: 0;
+      }
+      .hero__photo{
+        width: min(468px, 100%);                 /* ~10% mindre enn 520px */
+        margin-top: 0;
+      }
+      .hero__card{ grid-column: 2; }             /* info-kort i høyre kolonne */
       .spot{ grid-template-columns:1.1fr .9fr; }
-      .mapframe{ width:66%; margin-inline:auto; } /* ~1/3 mindre enn full bredde */
+      .mapframe{ width:66%; margin-inline:auto; }/* ~1/3 mindre enn full bredde */
     }
 
-    /* MOBIL: flytt hero-bildet opp i intro, 2/5 bredde, litt på skrå */
+    /* MOBIL: (punkt 2) tekst flyter rundt bildet + bunn justert til CTA */
     @media (max-width: 900px){
       .hero .wrap{ grid-template-columns:1fr; }
-      .intro{ padding-right: 45vw; } /* gjør plass til flytende bilde */
-      .hero__photo{
-        position:absolute; right: clamp(10px, 4vw, 18px); top: clamp(62px, 12vw, 96px);
-        width: 40vw; max-width: 220px; transform: rotate(-3.5deg);
-        border-radius:16px; z-index:1; box-shadow:0 14px 30px rgba(0,0,0,.20);
+      .intro{ padding-right: 0; position:relative; }
+      .hero__cta{ clear: both; margin-top: 12px; }
+
+      /* null ut tidligere absolutte posisjonering */
+      .hero__photo{ position: static !important; right:auto !important; top:auto !important; z-index:auto !important; transform:none; }
+
+      /* flytende variant for pen tekstflyt */
+      .hero__photo.is-float{
+        float: right;
+        width: 40vw; max-width: 220px;
+        border-radius:16px;
+        transform: rotate(-3.5deg);
+        margin: 0 0 8px 12px; /* luft til tekst */
+        shape-outside: ellipse(50% 45% at 50% 50%);
+        -webkit-shape-outside: ellipse(50% 45% at 50% 50%);
+        box-shadow:0 14px 30px rgba(0,0,0,.20);
       }
-      .hero__photo::after{ background:linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.10) 100%); }
+
       .spot{ grid-template-columns:1fr; }
       .spot__art{ order:-1; aspect-ratio:16/9; }
       .grid{grid-template-columns:repeat(6, 1fr)}
@@ -201,12 +226,23 @@
       .card__img{ aspect-ratio: 16 / 10; }
       .card__cap{ position:static; background:transparent; backdrop-filter:none; margin:8px 6px 2px; padding:0; }
     }
+
+    /* Slim info card (punkt 3 – når flyttet under collage) */
+    .hero__card.hero__card--slim{
+      grid-column: 1 / -1;
+      max-width: 760px;
+      margin: 10px auto 0;
+      padding: 12px 14px;
+      border-radius:16px;
+      box-shadow: 0 10px 26px rgba(0,0,0,.08);
+    }
+    .hero__card.hero__card--slim .kv{ font-size: 15px; }
   </style>
 </head>
 <body>
   <header>
     <nav class="nav wrap" aria-label="Hovedmeny">
-      <!-- ✅ Logo/brand lenker til admin -->
+      <!-- Logo/brand lenker til admin -->
       <div class="brand"><a class="name" href="/admin">Macé Cafe</a></div>
       <div class="menu">
         <a href="#meny">Meny</a>
@@ -218,7 +254,7 @@
   <section class="hero" id="hjem">
     <div class="hero__bg" aria-hidden="true"></div>
     <div class="wrap">
-      <!-- Venstre: intro (får padding-right på mobil for å gi plass til bilde) -->
+      <!-- Venstre: intro -->
       <div class="intro">
         <h1 class="h" style="margin-top:4px">Velkommen til Macé Cafe</h1>
         <p>Kaffe, lunsj og noe søtt – midt i Molde sentrum. Stikk innom for dagens middag eller finn et rolig hjørne inne.</p>
@@ -228,7 +264,7 @@
         </div>
       </div>
 
-      <!-- Høyre: foto (dynamisk via JSON) — flyttes opp på mobil -->
+      <!-- Høyre: foto (dynamisk via JSON) -->
       <figure class="hero__photo reveal" id="hero-photo" style="display:none">
         <img id="hero-img" src="" alt="">
       </figure>
@@ -246,7 +282,7 @@
         </div>
       </section>
 
-      <!-- Info-kort -->
+      <!-- Info-kort (flyttes under collage via JS) -->
       <aside class="hero__card reveal" aria-label="Nøkkelinformasjon">
         <div class="hero__card-inner">
           <dl class="kv">
@@ -266,9 +302,10 @@
       <span class="chip">Sveip for flere</span>
     </div>
     <p>Et lite utvalg av hva du kan forvente – endres jevnlig etter råvarer og sesong.</p>
-
     <div class="grid" id="collage-grid" role="list"></div>
   </section>
+
+  <!-- Info-kort flyttes hit (slank) av JS -->
 
   <section id="meny" class="menu-section" aria-label="Meny">
     <div class="wrap">
@@ -287,7 +324,6 @@
         </div>
       </div>
 
-      <!-- ✅ Fjernet "Rediger via /admin"-knappen her -->
       <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap">
         <a class="btn btn--ghost" href="https://maps.google.com/?q=Storgata+42,+6413+Molde" target="_blank" rel="noopener">Finn veien</a>
       </div>
@@ -328,6 +364,45 @@
       }, {threshold:.2});
       document.querySelectorAll('.reveal').forEach(el=>{ el.style.opacity = 0; el.style.transform = 'translateY(14px)'; io.observe(el) })
     }
+
+    /* punkt 2: funksjon for mobil-flyt og bunn-justering = CTA */
+    function floatHeroOnMobile(){
+      var fig  = document.getElementById('hero-photo');
+      var img  = document.getElementById('hero-img');
+      var intro= document.querySelector('.intro');
+      var cta  = document.querySelector('.hero__cta');
+      if (!fig || !img || !intro || !cta) return;
+      if (!window.matchMedia('(max-width: 900px)').matches) return;
+
+      var firstP = intro.querySelector('p');
+      if (firstP && fig.parentElement !== intro){
+        intro.insertBefore(fig, firstP);
+      }
+      fig.classList.add('is-float');
+      fig.style.display = 'block';
+
+      function align(){
+        var introRect = intro.getBoundingClientRect();
+        var figRect   = fig.getBoundingClientRect();
+        var ctaRect   = cta.getBoundingClientRect();
+        var desiredBottom = (ctaRect.top - introRect.top) + ctaRect.height;
+        var desiredTop    = desiredBottom - figRect.height;
+        fig.style.marginTop = Math.max(0, desiredTop) + 'px';
+      }
+      if (!img.complete){ img.addEventListener('load', function(){ setTimeout(align, 30); }, {once:true}); }
+      else { setTimeout(align, 30); }
+      window.addEventListener('resize', function(){ if (fig.classList.contains('is-float')) setTimeout(align, 60); });
+    }
+
+    /* punkt 3: flytt info-kort under collage og gjør det slankt */
+    document.addEventListener('DOMContentLoaded', function(){
+      var info   = document.querySelector('.hero__card');
+      var collage= document.querySelector('.collage');
+      if (info && collage){
+        collage.insertAdjacentElement('afterend', info);
+        info.classList.add('hero__card--slim');
+      }
+    });
   </script>
 
   <!-- Hent data fra JSON -->
@@ -352,6 +427,8 @@
         img.src = home.hero_image;
         img.alt = home.hero_image_alt || "Macé Cafe";
         fig.style.display = 'block';
+        // mobil-flyt aktiveres etter at bildet er synlig
+        floatHeroOnMobile();
       }
 
       // SPOTLIGHT – Dagens
@@ -394,7 +471,7 @@
       fillMenu('menu-lunch', meny.lunch);
       fillMenu('menu-sweet', meny.dessert);
 
-      // Åpningstider-linje
+      // Åpningstider-linje (i slank info-blokk)
       const hoursLine = q('#hours-line');
       if (hoursLine && hours.weekdays_open && hours.weekdays_close && hours.saturday_open && hours.saturday_close){
         hoursLine.textContent = `Man–Fre ${hours.weekdays_open} – ${hours.weekdays_close} · Lør ${hours.saturday_open} – ${hours.saturday_close}`;
