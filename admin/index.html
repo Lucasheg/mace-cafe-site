@@ -12,15 +12,12 @@
       body{ margin:0; background:var(--bg); color:var(--fg); font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif }
       .hidden{ display:none !important }
 
-      /* Login-guard */
+      /* Login-guard (fikset så den ikke blokkerer modal) */
       .lock{ position:fixed; inset:0; display:grid; place-items:center; background:rgba(255,255,255,.92); backdrop-filter: blur(4px); z-index:9999; padding:20px }
       .panel{ background:#fff; border:1px solid var(--border); border-radius:16px; padding:18px; max-width:520px; width:min(92%,520px); box-shadow:0 12px 30px rgba(0,0,0,.12); text-align:center }
       .panel h1{ margin:.2rem 0 .6rem; font-size:1.35rem }
       .panel p{ margin:.2rem 0 .8rem; color:var(--muted) }
-      .btn{
-        display:inline-flex; align-items:center; gap:.5rem; padding:.6rem 1rem; border-radius:10px; text-decoration:none; font-weight:600;
-        border:1px solid var(--border); background:#fff; color:#111; cursor:pointer;
-      }
+      .btn{ display:inline-flex; align-items:center; gap:.5rem; padding:.6rem 1rem; border-radius:10px; text-decoration:none; font-weight:600; border:1px solid var(--border); background:#fff; color:#111; cursor:pointer }
       .btn:hover{ background:#f7f7f7 }
 
       /* Dashboard */
@@ -55,7 +52,7 @@
       </div>
     </div>
 
-    <!-- Dashboard (skjules helt til brukeren er innlogget) -->
+    <!-- Dashboard (vises KUN etter innlogging) -->
     <div id="dashboard" class="layout hidden">
       <aside class="sidebar">
         <div class="sb-inner">
@@ -68,7 +65,7 @@
           </div>
           <div class="divider"></div>
           <a class="btn" href="/">↩︎ Til forsiden</a>
-          <button id="authBtn" class="btn" type="button">Logg ut</button>
+          <button id="logoutBtn" class="btn" type="button">Logg ut</button>
         </div>
       </aside>
 
@@ -102,38 +99,36 @@
     </div>
 
     <script>
-      // Krev innlogging før panel
       const gate = document.getElementById('gate');
       const dash = document.getElementById('dashboard');
-      const authBtn = document.getElementById('authBtn');
       const loginBtn = document.getElementById('loginBtn');
+      const logoutBtn = document.getElementById('logoutBtn');
 
-      function showPanelIfLoggedIn(){
+      function loggedIn(){
+        return window.netlifyIdentity && window.netlifyIdentity.currentUser();
+      }
+      function updateState(){
         if (!window.netlifyIdentity) return;
-        const u = window.netlifyIdentity.currentUser();
-        if (u){
-          gate.classList.add('hidden');   // skjul login-gate
-          dash.classList.remove('hidden'); // vis dashboard
-        } else {
-          dash.classList.add('hidden');
-          gate.classList.remove('hidden');
-        }
+        if (loggedIn()){ gate.classList.add('hidden'); dash.classList.remove('hidden'); }
+        else { dash.classList.add('hidden'); gate.classList.remove('hidden'); }
       }
 
       document.addEventListener('DOMContentLoaded', () => {
         if (!window.netlifyIdentity) return;
 
-        window.netlifyIdentity.on('init', showPanelIfLoggedIn);
-        window.netlifyIdentity.on('login', showPanelIfLoggedIn);
-        window.netlifyIdentity.on('logout', showPanelIfLoggedIn);
+        // Oppdater ved init/login/logout
+        window.netlifyIdentity.on('init', updateState);
+        window.netlifyIdentity.on('login', updateState);
+        window.netlifyIdentity.on('logout', updateState);
 
-        loginBtn.onclick = () => window.netlifyIdentity.open('login'); // husk "Remember me" i modalen
-        authBtn.onclick  = () => window.netlifyIdentity.logout();
+        // 👇 Viktig: Skjul gate straks login-modal åpnes; vis igjen hvis den lukkes uten innlogging
+        window.netlifyIdentity.on('open', () => { gate.classList.add('hidden'); });
+        window.netlifyIdentity.on('close', () => { if (!loggedIn()) gate.classList.remove('hidden'); });
 
-        // Hvis token er lagret (remember), vil init trigge showPanelIfLoggedIn og åpne dashboard direkte.
+        loginBtn.onclick = () => { window.netlifyIdentity.open('login'); };
+        logoutBtn.onclick = () => { window.netlifyIdentity.logout(); };
       });
 
-      // Åpne editor-side
       function go(target){
         location.href = '/admin/editor.html?collection=' + encodeURIComponent(target);
       }
