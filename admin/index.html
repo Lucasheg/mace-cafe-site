@@ -111,13 +111,8 @@
       function showPanelIfLoggedIn(){
         if (!window.netlifyIdentity) return;
         const u = window.netlifyIdentity.currentUser();
-        if (u){
-          gate.classList.add('hidden');   // skjul login-gate
-          dash.classList.remove('hidden'); // vis dashboard
-        } else {
-          dash.classList.add('hidden');
-          gate.classList.remove('hidden');
-        }
+        if (u){ gate.classList.add('hidden');   dash.classList.remove('hidden'); }
+        else  { dash.classList.add('hidden');   gate.classList.remove('hidden'); }
       }
 
       document.addEventListener('DOMContentLoaded', () => {
@@ -127,10 +122,17 @@
         window.netlifyIdentity.on('login', showPanelIfLoggedIn);
         window.netlifyIdentity.on('logout', showPanelIfLoggedIn);
 
-        loginBtn.onclick = () => window.netlifyIdentity.open('login'); // husk "Remember me" i modalen
+        // 🔧 FIX: ikke la "gate" ligge over login-modalen
+        window.netlifyIdentity.on('open', () => { gate.classList.add('hidden'); });
+        window.netlifyIdentity.on('close', () => {
+          const u = window.netlifyIdentity.currentUser();
+          if (!u) gate.classList.remove('hidden'); // vis gate igjen hvis man lukker uten innlogging
+        });
+
+        loginBtn.onclick = () => window.netlifyIdentity.open('login'); // bruk "Remember me" i modalen
         authBtn.onclick  = () => window.netlifyIdentity.logout();
 
-        // Hvis token er lagret (remember), vil init trigge showPanelIfLoggedIn og åpne dashboard direkte.
+        // Hvis token er lagret (remember), init -> åpne dashboard direkte
       });
 
       // Åpne editor-side
