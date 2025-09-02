@@ -1,10 +1,12 @@
 {
-  "title": "Dagens middag",
-  "subtitle": "Serveres 12–16 – begrenset antall",
-  "image": "/assets/uploads/hero-chef.jpg",
+  "title": "Dagens middag ",
+  "subtitle": "Serveres 12–16 ",
+  "image": "/assets/uploads/pasta.jpg",
   "items": [
-    { "title": "Tomatsuppe med basilikum", "price": "129,-" },
-    { "title": "Focaccia med oliven", "price": "45,-" }
+    {
+      "title": "Pasta Bolognese med paarmesan",
+      "price": "229"
+    }
   ],
   "updated": "2025-09-01"
 }
