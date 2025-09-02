@@ -10,6 +10,20 @@
       :root{ --bg:#fbfbfb; --fg:#111; --muted:#6b7280; --border:#e7e7e7; --brand:#4A3428; --panel:#fff; --radius:14px; }
       *{ box-sizing:border-box } html,body{ height:100% }
       body{ margin:0; background:var(--bg); color:var(--fg); font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif }
+      .hidden{ display:none !important }
+
+      /* Login-guard */
+      .lock{ position:fixed; inset:0; display:grid; place-items:center; background:rgba(255,255,255,.92); backdrop-filter: blur(4px); z-index:9999; padding:20px }
+      .panel{ background:#fff; border:1px solid var(--border); border-radius:16px; padding:18px; max-width:520px; width:min(92%,520px); box-shadow:0 12px 30px rgba(0,0,0,.12); text-align:center }
+      .panel h1{ margin:.2rem 0 .6rem; font-size:1.35rem }
+      .panel p{ margin:.2rem 0 .8rem; color:var(--muted) }
+      .btn{
+        display:inline-flex; align-items:center; gap:.5rem; padding:.6rem 1rem; border-radius:10px; text-decoration:none; font-weight:600;
+        border:1px solid var(--border); background:#fff; color:#111; cursor:pointer;
+      }
+      .btn:hover{ background:#f7f7f7 }
+
+      /* Dashboard */
       .layout{ display:grid; grid-template-columns:280px 1fr; min-height:100dvh }
       .sidebar{ position:sticky; top:0; align-self:start; height:100dvh; overflow:auto; background:var(--panel); border-right:1px solid var(--border) }
       .sb-inner{ padding:16px 14px; display:grid; gap:12px }
@@ -19,8 +33,6 @@
       .nav a{ display:flex; align-items:center; gap:.6rem; padding:.7rem .8rem; border-radius:10px; text-decoration:none; color:inherit; border:1px solid var(--border); background:#fff; font-weight:600; cursor:pointer }
       .nav a:hover{ background:#f6f6f6 }
       .divider{ height:1px; background:var(--border); margin:10px 0 }
-      .btn{ display:inline-flex; align-items:center; gap:.5rem; padding:.55rem .8rem; border-radius:10px; text-decoration:none; font-weight:600; border:1px solid var(--border); background:#fff; color:#111; cursor:pointer }
-      .btn:hover{ background:#f7f7f7 }
       .content{ padding:16px; display:grid; gap:12px }
       .toolbar{ background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:10px 12px; display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap }
       .search{ flex:1; min-width:220px; display:flex; align-items:center; gap:6px; border:1px solid var(--border); border-radius:10px; padding:.5rem .6rem; background:#fff }
@@ -34,7 +46,17 @@
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
-    <div class="layout">
+    <!-- Login gate -->
+    <div id="gate" class="lock">
+      <div class="panel">
+        <h1>Logg inn for å fortsette</h1>
+        <p>Du må være innlogget for å bruke adminpanelet. Kryss av “Remember me” i modalen for å huskes på denne enheten.</p>
+        <button id="loginBtn" class="btn" type="button">Logg inn</button>
+      </div>
+    </div>
+
+    <!-- Dashboard (skjules helt til brukeren er innlogget) -->
+    <div id="dashboard" class="layout hidden">
       <aside class="sidebar">
         <div class="sb-inner">
           <div class="brand"><b>Macé Cafe</b> <small>Admin</small></div>
@@ -46,7 +68,7 @@
           </div>
           <div class="divider"></div>
           <a class="btn" href="/">↩︎ Til forsiden</a>
-          <button id="authBtn" class="btn" type="button">Logg inn</button>
+          <button id="authBtn" class="btn" type="button">Logg ut</button>
         </div>
       </aside>
 
@@ -67,7 +89,7 @@
             <strong>Forside-bilder</strong><span class="muted">Velkomstbilde + smakebiter</span>
           </div>
           <div class="tile" onclick="go('dagens')">
-            <strong>Dagens middag</strong><span class="muted">Tittel, liten tekst, bilde, retter</span>
+            <strong>Dagens middag</strong><span class="muted">Tittel, undertekst, <b>bilde</b>, retter</span>
           </div>
           <div class="tile" onclick="go('meny')">
             <strong>Meny</strong><span class="muted">Retter og priser</span>
@@ -80,26 +102,38 @@
     </div>
 
     <script>
-      // Logg inn/ut-knapp
+      // Krev innlogging før panel
+      const gate = document.getElementById('gate');
+      const dash = document.getElementById('dashboard');
       const authBtn = document.getElementById('authBtn');
-      function updateAuthUI(){
+      const loginBtn = document.getElementById('loginBtn');
+
+      function showPanelIfLoggedIn(){
         if (!window.netlifyIdentity) return;
         const u = window.netlifyIdentity.currentUser();
-        authBtn.textContent = u ? 'Logg ut' : 'Logg inn';
+        if (u){
+          gate.classList.add('hidden');   // skjul login-gate
+          dash.classList.remove('hidden'); // vis dashboard
+        } else {
+          dash.classList.add('hidden');
+          gate.classList.remove('hidden');
+        }
       }
+
       document.addEventListener('DOMContentLoaded', () => {
         if (!window.netlifyIdentity) return;
-        window.netlifyIdentity.on('init', updateAuthUI);
-        window.netlifyIdentity.on('login', updateAuthUI);
-        window.netlifyIdentity.on('logout', updateAuthUI);
-        authBtn.onclick = () => {
-          const u = window.netlifyIdentity.currentUser();
-          if (u) window.netlifyIdentity.logout();
-          else window.netlifyIdentity.open('login'); // "Remember" finnes i modalen.
-        };
+
+        window.netlifyIdentity.on('init', showPanelIfLoggedIn);
+        window.netlifyIdentity.on('login', showPanelIfLoggedIn);
+        window.netlifyIdentity.on('logout', showPanelIfLoggedIn);
+
+        loginBtn.onclick = () => window.netlifyIdentity.open('login'); // husk "Remember me" i modalen
+        authBtn.onclick  = () => window.netlifyIdentity.logout();
+
+        // Hvis token er lagret (remember), vil init trigge showPanelIfLoggedIn og åpne dashboard direkte.
       });
 
-      // Åpne editor-side (krever innlogging der)
+      // Åpne editor-side
       function go(target){
         location.href = '/admin/editor.html?collection=' + encodeURIComponent(target);
       }
