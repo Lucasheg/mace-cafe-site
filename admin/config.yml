@@ -25,9 +25,8 @@ collections:
             summary: "{{title}} — {{price}}"
             fields:
               - { label: "Navn", name: "title", widget: "string", hint: "F.eks. Latte" }
-              - { label: "Pris", name: "price", widget: "string", hint: "Skriv pris slik: 49,-" }
+              - { label: "Pris", name: "price", widget: "string", hint: "49,-" }
               - { label: "Plantebasert (V)", name: "vegan", widget: "boolean", required: false, default: false }
-
           - label: "Frokost & lunsj"
             name: "lunch"
             widget: "list"
@@ -35,9 +34,8 @@ collections:
             summary: "{{title}} — {{price}}"
             fields:
               - { label: "Navn", name: "title", widget: "string" }
-              - { label: "Pris", name: "price", widget: "string", hint: "F.eks. 129,-" }
+              - { label: "Pris", name: "price", widget: "string" }
               - { label: "Plantebasert (V)", name: "vegan", widget: "boolean", required: false, default: false }
-
           - label: "Søtt & kaldt"
             name: "dessert"
             widget: "list"
@@ -58,19 +56,21 @@ collections:
         fields:
           - { label: "Hverdager – åpner",  name: "weekdays_open",  widget: "string", default: "09:00", hint: "HH:MM" }
           - { label: "Hverdager – stenger", name: "weekdays_close", widget: "string", default: "18:00", hint: "HH:MM" }
-          - { label: "Lørdag – åpner",     name: "saturday_open",  widget: "string", default: "09:00", hint: "HH:MM" }
-          - { label: "Lørdag – stenger",    name: "saturday_close", widget: "string", default: "17:00", hint: "HH:MM" }
-          - { label: "Notis (valgfri)",     name: "note",           widget: "string", required: false, hint: "Kort beskjed som vises ved åpningstidene." }
+          - { label: "Lørdag – åpner",     name: "saturday_open",  widget: "string", default: "09:00" }
+          - { label: "Lørdag – stenger",    name: "saturday_close", widget: "string", default: "17:00" }
+          - { label: "Notis (valgfri)",     name: "note",           widget: "string", required: false }
 
   - name: "dagens"
     label: "Dagens middag"
-    description: "Oppdater dagens retter. Vises som spotlight i toppen."
+    description: "Vises som spotlight i toppen. Legg gjerne til bilde."
     files:
       - file: "site_data/dagens.json"
         label: "Dagens middag"
         name: "dagens"
         fields:
-          - { label: "Overskrift", name: "title", widget: "string", default: "Dagens middag", hint: "F.eks. 'Dagens middag' eller 'Dagens spesial'." }
+          - { label: "Overskrift", name: "title", widget: "string", default: "Dagens middag" }
+          - { label: "Undertekst (liten)", name: "subtitle", widget: "string", required: false, hint: "F.eks. 'Serveres 12–16' eller en kort beskjed." }
+          - { label: "Bilde (valgfritt)", name: "image", widget: "image", required: false, allow_multiple: false, hint: "Vises i spotlight-kortet." }
           - label: "Retter"
             name: "items"
             widget: "list"
@@ -79,4 +79,4 @@ collections:
             fields:
               - { label: "Navn", name: "title", widget: "string" }
               - { label: "Pris", name: "price", widget: "string" }
-          - { label: "Oppdatert", name: "updated", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, hint: "Sett dagens dato når du oppdaterer." }
+          - { label: "Oppdatert", name: "updated", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false }
