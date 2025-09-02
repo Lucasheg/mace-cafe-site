@@ -10,6 +10,26 @@ editor:
   preview: false
 
 collections:
+  # ✅ NY: Forside-bilder (hero + smakebiter-galleri)
+  - name: "forside"
+    label: "Forside-bilder"
+    files:
+      - file: "site_data/home.json"
+        label: "Forside"
+        name: "home"
+        fields:
+          - { label: "Velkomstbilde (høyre for 'Velkommen')", name: "hero_image", widget: "image", allow_multiple: false, required: false }
+          - { label: "Alternativ tekst (for skjermleser/SEO)", name: "hero_image_alt", widget: "string", required: false }
+          - label: "Smakebiter fra disken (bilder)"
+            name: "collage"
+            widget: "list"
+            collapsed: true
+            summary: "{{title}}"
+            fields:
+              - { label: "Tittel (kort)", name: "title", widget: "string", hint: "F.eks. 'Latte Art' eller 'Brownie'" }
+              - { label: "Bilde", name: "image", widget: "image", allow_multiple: false }
+              - { label: "Bildetekst (valgfritt)", name: "caption", widget: "string", required: false }
+
   - name: "meny"
     label: "Meny"
     description: "Legg til/endre retter og priser. Huk av 'Plantebasert' for V-merke."
@@ -62,15 +82,15 @@ collections:
 
   - name: "dagens"
     label: "Dagens middag"
-    description: "Vises som spotlight i toppen. Legg gjerne til bilde."
+    description: "Vises i spotlight rett under introen."
     files:
       - file: "site_data/dagens.json"
         label: "Dagens middag"
         name: "dagens"
         fields:
           - { label: "Overskrift", name: "title", widget: "string", default: "Dagens middag" }
-          - { label: "Undertekst (liten)", name: "subtitle", widget: "string", required: false, hint: "F.eks. 'Serveres 12–16' eller en kort beskjed." }
-          - { label: "Bilde (valgfritt)", name: "image", widget: "image", required: false, allow_multiple: false, hint: "Vises i spotlight-kortet." }
+          - { label: "Undertekst (liten)", name: "subtitle", widget: "string", required: false, hint: "F.eks. 'Serveres 12–16'." }
+          - { label: "Bilde (valgfritt)", name: "image", widget: "image", required: false, allow_multiple: false }
           - label: "Retter"
             name: "items"
             widget: "list"
