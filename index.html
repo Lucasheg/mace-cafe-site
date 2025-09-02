@@ -9,17 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
 
-  <!-- Netlify Identity for /admin -->
+  <!-- Netlify Identity (for /admin) -->
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded',function(){
-      if (window.netlifyIdentity) {
-        window.netlifyIdentity.on('init',(user)=>{
-          if(!user){ window.netlifyIdentity.on('login',()=>{ location.href='/admin/'; }); }
-        });
-      }
-    });
-  </script>
 
   <style>
     :root{
@@ -40,28 +31,22 @@
     .btn--ghost{background:transparent; color:var(--espresso); border:1px solid var(--espresso)}
     .chip{border-radius:999px; padding:.45rem .7rem; background:rgba(255,255,255,.6); backdrop-filter: blur(8px); border:1px solid rgba(0,0,0,.06)}
 
-    /* Header – IKKE sticky */
+    /* Header – IKKE sticky, og logo linker til /admin */
     header{position:static}
     .nav{
       display:flex; align-items:center; justify-content:space-between; gap:12px;
       padding:.8rem clamp(16px, 4vw, 32px);
       background:linear-gradient(180deg, rgba(255,255,255,.62), rgba(255,255,255,.35));
-      backdrop-filter: blur(10px);
       border-bottom:1px solid rgba(0,0,0,.08);
+      backdrop-filter: blur(10px);
     }
-    .brand .name{
-      font-family:"Playfair Display",serif; font-weight:800; letter-spacing:.02em;
-      font-size:clamp(26px, 3.8vw, 42px); line-height:1;
-    }
+    .brand .name{ font-family:"Playfair Display",serif; font-weight:800; letter-spacing:.02em; font-size:clamp(24px, 3.6vw, 40px); line-height:1 }
     .menu{display:flex; gap:18px; align-items:center}
     .menu a{padding:.2rem 0; position:relative; font-weight:600; opacity:.95;}
-    .menu a::after{
-      content:""; position:absolute; left:0; bottom:-3px; height:2px; width:0; background:var(--espresso);
-      transition:width .22s ease;
-    }
+    .menu a::after{ content:""; position:absolute; left:0; bottom:-3px; height:2px; width:0; background:var(--espresso); transition:width .22s ease; }
     .menu a:hover::after{ width:100% }
 
-    /* Hero */
+    /* Hero (løftet opp, litt mindre h1 + bilde 10% mindre på desktop) */
     .hero{ position:relative; overflow:hidden; isolation:isolate; color:var(--espresso) }
     .hero__bg{
       position:absolute; inset:0; z-index:-1; transform:translateZ(0);
@@ -70,24 +55,21 @@
         radial-gradient(900px 600px at -10% 10%, rgba(79,113,140,.20), transparent 60%),
         radial-gradient(800px 500px at 50% 110%, rgba(200,183,166,.45), transparent 60%),
         linear-gradient(180deg, #ffffff, var(--foam));
-      -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 300%22 preserveAspectRatio=%22none%22><path d=%22M0 0 H1600 V240 Q1200 300 800 220 T0 240 Z%22 fill=%22%23000%22/></svg>') bottom left / 100% 120% no-repeat;
-              mask: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 300%22 preserveAspectRatio=%22none%22><path d=%22M0 0 H1600 V240 Q1200 300 800 220 T0 240 Z%22 fill=%22%23000%22/></svg>') bottom left / 100% 120% no-repeat;
+      -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 300%22" preserveAspectRatio="none"><path d="M0 0 H1600 V240 Q1200 300 800 220 T0 240 Z" fill="%23000"/></svg>') bottom left / 100% 120% no-repeat;
+              mask: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 300%22" preserveAspectRatio="none"><path d="M0 0 H1600 V240 Q1200 300 800 220 T0 240 Z" fill="%23000"/></svg>') bottom left / 100% 120% no-repeat;
     }
-    .hero .wrap{display:grid; grid-template-columns:1.1fr .9fr; align-items:center; gap:clamp(18px,4vw,48px); padding-block: clamp(48px, 10vw, 120px); position:relative}
-    .hero h1{font-size:clamp(40px, 7vw, 86px); line-height:1; margin:0}
+    .hero .wrap{display:grid; grid-template-columns:1.1fr .9fr; align-items:center; gap:clamp(18px,4vw,48px); padding-block: clamp(28px, 7vw, 88px)}
+    .hero h1{font-size:clamp(36px, 6.2vw, 78px); line-height:1; margin:0}
     .hero p{font-size:clamp(16px, 2.2vw, 20px); max-width:52ch; opacity:.9}
     .hero__cta{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:18px}
 
-    /* Hero-foto (desktop + mobil-variant) */
     .hero__photo{
-      justify-self:end; width:min(520px, 100%); border-radius:22px; overflow:hidden; position:relative;
+      justify-self:end; width:min(468px, 100%); /* 10% mindre enn 520px */
+      border-radius:22px; overflow:hidden; position:relative;
       box-shadow:0 16px 40px rgba(0,0,0,.18); transform:rotate(-.5deg);
     }
     .hero__photo img{ width:100%; height:100%; object-fit:cover; display:block; }
-    .hero__photo::after{
-      content:""; position:absolute; inset:0; pointer-events:none;
-      background:linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.12) 85%);
-    }
+    .hero__photo::after{ content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.12) 85%); }
 
     /* SPOTLIGHT — Dagens middag */
     .spot{
@@ -105,26 +87,10 @@
     .spot__title{ font-family:"Playfair Display",serif; font-weight:800; font-size: clamp(22px, 3.2vw, 34px); margin:.2rem 0 .2rem }
     .spot__subtitle{ opacity:.85; margin:0 0 .6rem }
     .spot__list{ display:flex; flex-wrap:wrap; gap:10px; margin:0; padding:0; list-style:none }
-    .spot__chip{
-      background:rgba(255,255,255,.85); border:1px solid rgba(0,0,0,.06); backdrop-filter: blur(6px);
-      padding:.5rem .7rem; border-radius:999px; font-weight:600;
-    }
+    .spot__chip{ background:rgba(255,255,255,.85); border:1px solid rgba(0,0,0,.06); backdrop-filter: blur(6px); padding:.5rem .7rem; border-radius:999px; font-weight:600; }
     .spot__art{ position:relative; overflow:hidden }
     .spot__art img{ width:100%; height:100%; object-fit:cover; display:block }
-    .spot__art::after{
-      content:""; position:absolute; inset:0; pointer-events:none;
-      background:linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,.18) 100%);
-    }
-
-    /* Info-kort */
-    .hero__card{
-      border-radius:18px; background:#fff; border:1px solid rgba(0,0,0,.08); box-shadow:0 10px 26px rgba(0,0,0,.10);
-      padding:16px; align-self:start; grid-column:1 / -1;
-    }
-    .hero__card-inner{ display:block }
-    .kv{display:grid; grid-template-columns:auto 1fr; gap:.25rem .75rem; align-items:center; font-size:15px}
-    .kv dt{font-weight:700; color:var(--espresso)}
-    .kv dd{margin:0; opacity:.9}
+    .spot__art::after{ content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,.18) 100%); }
 
     /* Collage */
     .collage{padding-block: clamp(36px, 8vw, 90px)}
@@ -135,78 +101,73 @@
       box-shadow:0 12px 30px rgba(0,0,0,.08); transform:rotate(var(--rot,0deg));
       transition:transform .25s ease, box-shadow .25s ease}
     .card:hover{transform:rotate(var(--rot,0deg)) translateY(-4px); box-shadow:0 16px 38px rgba(0,0,0,.12)}
-    .card__img{aspect-ratio:4/3; background:linear-gradient(120deg, var(--latte), var(--foam));
-      display:grid; place-items:center; color:var(--espresso); font-weight:700}
+    .card__img{aspect-ratio:4/3; background:linear-gradient(120deg, var(--latte), var(--foam)); display:grid; place-items:center; color:var(--espresso); font-weight:700}
     .card__cap{position:absolute; inset:auto 10px 10px 10px; padding:.6rem .8rem; border-radius:14px; background:rgba(255,255,255,.85); backdrop-filter: blur(8px); font-size:.95rem}
     .span-3{grid-column:span 3} .span-4{grid-column:span 4} .span-5{grid-column:span 5} .span-6{grid-column:span 6} .row-2{grid-row:span 2}
+
+    /* ✅ Ny: Slank info-blokk under collage */
+    .info-mini{ padding-block: clamp(16px, 4vw, 36px); }
+    .info-card{
+      border:1px solid rgba(0,0,0,.08); background:#fff; border-radius:16px;
+      box-shadow:0 10px 26px rgba(0,0,0,.08); padding:12px 14px;
+      width:min(760px, 100%); margin:0 auto;
+    }
+    .info-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; align-items:start }
+    .info-item{ display:grid; gap:2px }
+    .info-item b{ color:var(--espresso) }
+    .info-item a{ text-decoration:underline }
+    @media (max-width: 900px){ .info-grid{ grid-template-columns:repeat(2, 1fr) } }
 
     /* Meny */
     .menu-section{padding-block: clamp(28px, 8vw, 90px); background:linear-gradient(180deg, transparent, rgba(200,183,166,.22));}
     .menu-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; margin-top:18px}
     .menu-card{border-radius:28px; border:1px solid rgba(0,0,0,.08); overflow:hidden; background:#fff; position:relative}
-    .menu-card::before{content:""; position:absolute; inset:-2px; border-radius:32px;
-      background:conic-gradient(from 180deg, transparent, rgba(163,107,63,.4), transparent 30%);
-      filter:blur(18px); opacity:.6; pointer-events:none}
+    .menu-card::before{content:""; position:absolute; inset:-2px; border-radius:32px; background:conic-gradient(from 180deg, transparent, rgba(163,107,63,.4), transparent 30%); filter:blur(18px); opacity:.6; pointer-events:none}
     .menu-card__inner{position:relative; padding:20px; z-index:1}
     .menu-title{font-weight:700; color:var(--espresso)}
     .menu-item{display:flex; justify-content:space-between; gap:12px; padding:10px 0; border-bottom:1px dashed rgba(0,0,0,.08)}
     .menu-item:last-child{border-bottom:none}
     .v{display:inline-grid; place-items:center; width:22px; height:22px; border-radius:999px; border:1px solid rgba(0,0,0,.15); font-size:12px}
 
-    /* Besøk oss / kart (66% på desktop, 100% mobil) */
+    /* Besøk oss / kart */
     .visit{padding-block: clamp(28px, 8vw, 90px)}
-    .mapframe{
-      border-radius:22px; overflow:hidden; box-shadow:0 16px 40px rgba(0,0,0,.10);
-      border:1px solid rgba(0,0,0,.08); background:#fff; width:100%;
-    }
+    .mapframe{ border-radius:22px; overflow:hidden; box-shadow:0 16px 40px rgba(0,0,0,.10); border:1px solid rgba(0,0,0,.08); background:#fff; width:100%; }
     .map{aspect-ratio:16/9; border:0; width:100%}
     .mapbar{display:flex; justify-content:space-between; gap:10px; align-items:center; padding:10px 14px}
+    @media (min-width: 900px){ .mapframe{ width:66%; margin-inline:auto; } }
 
     footer .wrap{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap}
 
-    /* Motion */
+    /* Reveal (fallback) */
     @media (prefers-reduced-motion: no-preference){
       .reveal{opacity:0; transform:translateY(14px); animation:reveal .7s ease both; animation-timeline:view(); animation-range:entry 10% cover 30%}
       @keyframes reveal{to{opacity:1; transform:none}}
     }
 
-    /* RESPONSIVE */
-    @media (min-width: 900px){
-      /* desktop plasseringsjusteringer */
-      .hero__card{ grid-column: 2; } /* info-kort i høyre kolonne */
-      .spot{ grid-template-columns:1.1fr .9fr; }
-      .mapframe{ width:66%; margin-inline:auto; } /* ~1/3 mindre enn full bredde */
-    }
-
-    /* MOBIL: flytt hero-bildet opp i intro, 2/5 bredde, litt på skrå */
+    /* RESPONSIVE — mobil: flytende bilde med shape-outside + bunnlinje justering */
     @media (max-width: 900px){
       .hero .wrap{ grid-template-columns:1fr; }
-      .intro{ padding-right: 45vw; } /* gjør plass til flytende bilde */
-      .hero__photo{
-        position:absolute; right: clamp(10px, 4vw, 18px); top: clamp(62px, 12vw, 96px);
-        width: 40vw; max-width: 220px; transform: rotate(-3.5deg);
-        border-radius:16px; z-index:1; box-shadow:0 14px 30px rgba(0,0,0,.20);
-      }
-      .hero__photo::after{ background:linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.10) 100%); }
-      .spot{ grid-template-columns:1fr; }
-      .spot__art{ order:-1; aspect-ratio:16/9; }
-      .grid{grid-template-columns:repeat(6, 1fr)}
-      .menu-grid{grid-template-columns:1fr}
-    }
+      .intro{ position:relative; }
+      .hero__cta{ clear: both; margin-top: 12px; }
+      .hero__photo{ display:block } /* vis når vi flytter den inn i .intro */
 
-    @media (max-width: 600px){
-      .grid{ display:flex; overflow-x:auto; gap:14px; padding:4px 6px 12px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
-      .grid::-webkit-scrollbar{display:none}
-      .card{ flex:0 0 86%; scroll-snap-align:start; transform:none !important; }
-      .card__img{ aspect-ratio: 16 / 10; }
-      .card__cap{ position:static; background:transparent; backdrop-filter:none; margin:8px 6px 2px; padding:0; }
+      /* flytende variant som tekst kan flyte rundt */
+      .hero__photo.is-float{
+        float: right;
+        width: 40vw; max-width: 220px;
+        border-radius:16px;
+        transform: rotate(-3.5deg);
+        margin: 0 0 8px 12px; /* høyre-flyt med litt luft til venstre/bunn */
+        shape-outside: ellipse(50% 45% at 50% 50%);
+        -webkit-shape-outside: ellipse(50% 45% at 50% 50%);
+      }
     }
   </style>
 </head>
 <body>
   <header>
     <nav class="nav wrap" aria-label="Hovedmeny">
-      <!-- ✅ Logo/brand lenker til admin -->
+      <!-- Logo/brand → admin -->
       <div class="brand"><a class="name" href="/admin">Macé Cafe</a></div>
       <div class="menu">
         <a href="#meny">Meny</a>
@@ -218,7 +179,6 @@
   <section class="hero" id="hjem">
     <div class="hero__bg" aria-hidden="true"></div>
     <div class="wrap">
-      <!-- Venstre: intro (får padding-right på mobil for å gi plass til bilde) -->
       <div class="intro">
         <h1 class="h" style="margin-top:4px">Velkommen til Macé Cafe</h1>
         <p>Kaffe, lunsj og noe søtt – midt i Molde sentrum. Stikk innom for dagens middag eller finn et rolig hjørne inne.</p>
@@ -228,7 +188,7 @@
         </div>
       </div>
 
-      <!-- Høyre: foto (dynamisk via JSON) — flyttes opp på mobil -->
+      <!-- Foto (desktop ved siden, mobil flyttes inn i intro m/tekstflyt) -->
       <figure class="hero__photo reveal" id="hero-photo" style="display:none">
         <img id="hero-img" src="" alt="">
       </figure>
@@ -245,18 +205,6 @@
           <img id="spot-img" src="" alt="">
         </div>
       </section>
-
-      <!-- Info-kort -->
-      <aside class="hero__card reveal" aria-label="Nøkkelinformasjon">
-        <div class="hero__card-inner">
-          <dl class="kv">
-            <dt>Adresse</dt><dd>Storgata 42, 6413 Molde</dd>
-            <dt>Telefon</dt><dd><a href="tel:+4791176800">+47 911 76 800</a></dd>
-            <dt>Åpent</dt><dd id="hours-line">Man–Fre 09:00 – 18:00 · Lør 09:00 – 17:00</dd>
-            <dt>Sosialt</dt><dd><a href="https://www.instagram.com/macecafemolde/" target="_blank" rel="noopener">@macecafemolde</a></dd>
-          </dl>
-        </div>
-      </aside>
     </div>
   </section>
 
@@ -266,28 +214,32 @@
       <span class="chip">Sveip for flere</span>
     </div>
     <p>Et lite utvalg av hva du kan forvente – endres jevnlig etter råvarer og sesong.</p>
-
     <div class="grid" id="collage-grid" role="list"></div>
+  </section>
+
+  <!-- ✅ Ny slank info-seksjon UNDER collage -->
+  <section class="info-mini">
+    <div class="wrap">
+      <div class="info-card reveal">
+        <div class="info-grid">
+          <div class="info-item"><b>Adresse</b><span>Storgata 42, 6413 Molde</span></div>
+          <div class="info-item"><b>Telefon</b><span><a href="tel:+4791176800">+47 911 76 800</a></span></div>
+          <div class="info-item"><b>Åpent</b><span id="hours-mini">Man–Fre 09:00 – 18:00 · Lør 09:00 – 17:00</span></div>
+          <div class="info-item"><b>Sosialt</b><span><a href="https://www.instagram.com/macecafemolde/" target="_blank" rel="noopener">@macecafemolde</a></span></div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section id="meny" class="menu-section" aria-label="Meny">
     <div class="wrap">
       <h2 class="h" style="margin:0">Meny (utvalg)</h2>
       <p style="opacity:.85; margin:.3rem 0 1rem">Dette styres fra adminpanelet.</p>
-
       <div class="menu-grid">
-        <div class="menu-card reveal">
-          <div class="menu-card__inner" id="menu-hot"><div class="menu-title">Kaffe & varme drikker</div></div>
-        </div>
-        <div class="menu-card reveal">
-          <div class="menu-card__inner" id="menu-lunch"><div class="menu-title">Frokost & lunsj</div></div>
-        </div>
-        <div class="menu-card reveal">
-          <div class="menu-card__inner" id="menu-sweet"><div class="menu-title">Søtt & kaldt</div></div>
-        </div>
+        <div class="menu-card reveal"><div class="menu-card__inner" id="menu-hot"><div class="menu-title">Kaffe & varme drikker</div></div></div>
+        <div class="menu-card reveal"><div class="menu-card__inner" id="menu-lunch"><div class="menu-title">Frokost & lunsj</div></div></div>
+        <div class="menu-card reveal"><div class="menu-card__inner" id="menu-sweet"><div class="menu-title">Søtt & kaldt</div></div></div>
       </div>
-
-      <!-- ✅ Fjernet "Rediger via /admin"-knappen her -->
       <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap">
         <a class="btn btn--ghost" href="https://maps.google.com/?q=Storgata+42,+6413+Molde" target="_blank" rel="noopener">Finn veien</a>
       </div>
@@ -298,10 +250,8 @@
     <div class="wrap">
       <h2 class="h" style="margin:0 0 8px">Besøk oss</h2>
       <p>Finn oss midt i Storgata – uteservering mot torget når været tillater det.</p>
-
       <div class="mapframe reveal" style="margin-top:16px">
-        <iframe class="map" title="Kart Storgata 42 Molde" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-          src="https://www.google.com/maps?q=Storgata%2042%2C%206413%20Molde&output=embed"></iframe>
+        <iframe class="map" title="Kart Storgata 42 Molde" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Storgata%2042%2C%206413%20Molde&output=embed"></iframe>
         <div class="mapbar">
           <span>Storgata 42, 6413 Molde</span>
           <a class="btn" style="padding:.55rem .9rem" target="_blank" rel="noopener" href="https://maps.google.com/?q=Storgata+42,+6413+Molde">Veibeskrivelse</a>
@@ -330,7 +280,7 @@
     }
   </script>
 
-  <!-- Hent data fra JSON -->
+  <!-- Data-binding -->
   <script>
   (async () => {
     const q = (s) => document.querySelector(s);
@@ -347,11 +297,12 @@
       const dagens = await dagensRes.json().catch(()=>({}));
 
       // HERO-bilde
+      const heroFig = q('#hero-photo');
+      const heroImg = q('#hero-img');
       if (home.hero_image){
-        const fig = q('#hero-photo'); const img = q('#hero-img');
-        img.src = home.hero_image;
-        img.alt = home.hero_image_alt || "Macé Cafe";
-        fig.style.display = 'block';
+        heroImg.src = home.hero_image;
+        heroImg.alt = home.hero_image_alt || "Macé Cafe";
+        heroFig.style.display = 'block';
       }
 
       // SPOTLIGHT – Dagens
@@ -363,22 +314,15 @@
         if (dagens.subtitle) subEl.textContent   = dagens.subtitle;
         listEl.innerHTML = '';
         dagens.items.forEach(i=>{
-          const li = document.createElement('li');
-          li.className = 'spot__chip';
+          const li = document.createElement('li'); li.className = 'spot__chip';
           li.textContent = i.price ? `${i.title} ${i.price}` : i.title;
           listEl.appendChild(li);
         });
-        if (dagens.image){
-          artImg.src = dagens.image;
-          artImg.alt = (dagens.title || 'Dagens rett') + ' – bilde';
-          artWrap.style.display = 'block';
-        } else {
-          artWrap.style.display = 'none';
-        }
+        if (dagens.image){ artImg.src = dagens.image; artImg.alt = (dagens.title || 'Dagens rett') + ' – bilde'; artWrap.style.display = 'block'; }
         spot.style.display = 'grid';
       }
 
-      // Meny (3 kort)
+      // Meny
       function fillMenu(id, items){
         const box = document.getElementById(id); if(!box || !items) return;
         [...box.querySelectorAll('.menu-item')].forEach(el=>el.remove());
@@ -394,15 +338,14 @@
       fillMenu('menu-lunch', meny.lunch);
       fillMenu('menu-sweet', meny.dessert);
 
-      // Åpningstider-linje
-      const hoursLine = q('#hours-line');
-      if (hoursLine && hours.weekdays_open && hours.weekdays_close && hours.saturday_open && hours.saturday_close){
-        hoursLine.textContent = `Man–Fre ${hours.weekdays_open} – ${hours.weekdays_close} · Lør ${hours.saturday_open} – ${hours.saturday_close}`;
+      // Åpningstider – skriv til slank info-blokk
+      const hoursMini = q('#hours-mini');
+      if (hoursMini && hours.weekdays_open && hours.weekdays_close && hours.saturday_open && hours.saturday_close){
+        hoursMini.textContent = `Man–Fre ${hours.weekdays_open} – ${hours.weekdays_close} · Lør ${hours.saturday_open} – ${hours.saturday_close}`;
       }
 
-      // Smakebiter fra home.json
-      const grid = q('#collage-grid');
-      grid.innerHTML = '';
+      // Collage fra home.json
+      const grid = q('#collage-grid'); grid.innerHTML = '';
       const items = Array.isArray(home.collage) ? home.collage : [];
       if (items.length){
         const spans = ['span-5 row-2','span-3','span-4 row-2','span-6','span-6'];
@@ -416,14 +359,51 @@
             const tag = document.createElement('img'); tag.src = it.image; tag.alt = it.title || 'Smakebit'; tag.loading='lazy';
             tag.style.width='100%'; tag.style.height='100%'; tag.style.objectFit='cover';
             img.innerHTML=''; img.appendChild(tag);
-          } else {
-            img.textContent = it.title || 'Smakebit';
-          }
-          const cap = document.createElement('div'); cap.className='card__cap';
-          cap.textContent = it.caption || it.title || '';
+          } else { img.textContent = it.title || 'Smakebit'; }
+          const cap = document.createElement('div'); cap.className='card__cap'; cap.textContent = it.caption || it.title || '';
           card.append(img, cap); grid.appendChild(card);
         });
       }
+
+      // ✅ Mobil: flytt hero-bildet INN i .intro og gjør det til flytende “shape-outside”
+      function mobileFloatHero(){
+        if (window.matchMedia('(max-width: 900px)').matches && heroFig && !heroFig.classList.contains('is-float')){
+          const intro = document.querySelector('.intro');
+          if (intro && heroFig){
+            intro.insertBefore(heroFig, intro.querySelector('p')); // legg det foran brødteksten for fin tekstflyt
+            heroFig.classList.add('is-float'); // aktiver flyt-stil (float right + shape-outside)
+            // Når bilde er klart, justér margin-top slik at bunn av bildet = bunn av CTA
+            const align = () => {
+              const cta = document.querySelector('.hero__cta');
+              if (!cta) return;
+              const introRect = intro.getBoundingClientRect();
+              const figRect   = heroFig.getBoundingClientRect();
+              const ctaRect   = cta.getBoundingClientRect();
+              const desiredBottom = (ctaRect.top - introRect.top) + ctaRect.height;
+              const desiredTop    = desiredBottom - figRect.height;
+              const mt = Math.max(0, desiredTop);
+              heroFig.style.marginTop = mt + 'px';
+            };
+            const img = heroFig.querySelector('img');
+            if (img && !img.complete){ img.addEventListener('load', ()=> setTimeout(align, 30), {once:true}); }
+            else { setTimeout(align, 30); }
+            window.addEventListener('resize', ()=> setTimeout(()=>{ if (heroFig.classList.contains('is-float')) { 
+              // re-beregn ved endring
+              const cta = document.querySelector('.hero__cta');
+              const intro = document.querySelector('.intro');
+              if (!cta || !intro) return;
+              const introRect = intro.getBoundingClientRect();
+              const figRect   = heroFig.getBoundingClientRect();
+              const ctaRect   = cta.getBoundingClientRect();
+              const desiredBottom = (ctaRect.top - introRect.top) + ctaRect.height;
+              const desiredTop    = desiredBottom - figRect.height;
+              const mt = Math.max(0, desiredTop);
+              heroFig.style.marginTop = mt + 'px';
+            }, 60) });
+          }
+        }
+      }
+      mobileFloatHero();
     } catch(e){
       console.warn('Kunne ikke laste CMS-data:', e);
     }
@@ -451,7 +431,6 @@
     ],
     "servesCuisine": ["Coffee","Cafe","Bakery"],
     "menu": "https://macecafe.no/#meny",
-    "image": "https://macecafe.no/og-image.jpg",
     "priceRange": "NOK"
   }
   </script>
