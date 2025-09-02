@@ -4,8 +4,12 @@
     <meta charset="utf-8" />
     <title>Macé Cafe — Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
     <style>
       :root{
         --bg:#fbfbfb; --fg:#111; --muted:#6b7280; --border:#e7e7e7; --brand:#4A3428;
@@ -15,6 +19,7 @@
       html,body{ height:100% }
       body{ margin:0; background:var(--bg); color:var(--fg); font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif }
 
+      /* DASHBOARD LAYOUT */
       .layout{ display:grid; grid-template-columns:280px 1fr; min-height:100dvh }
       .sidebar{
         position:sticky; top:0; align-self:start; height:100dvh; overflow:auto;
@@ -24,11 +29,10 @@
       .brand{ display:flex; gap:.5rem; align-items:baseline; padding:4px 4px 6px }
       .brand b{ color:var(--brand); font-weight:800; font-size:1.05rem }
       .brand small{ color:var(--muted) }
-
       .nav{ display:grid; gap:8px; margin-top:6px }
       .nav a{
         display:flex; align-items:center; gap:.6rem; padding:.7rem .8rem; border-radius:10px; text-decoration:none; color:inherit;
-        border:1px solid var(--border); background:#fff; font-weight:600;
+        border:1px solid var(--border); background:#fff; font-weight:600; cursor:pointer;
       }
       .nav a:hover{ background:#f6f6f6 }
       .divider{ height:1px; background:var(--border); margin:10px 0 }
@@ -45,7 +49,6 @@
       }
       .search{ flex:1; min-width:220px; display:flex; align-items:center; gap:6px; border:1px solid var(--border); border-radius:10px; padding:.5rem .6rem; background:#fff }
       .search input{ border:0; outline:0; background:transparent; width:100% }
-
       .dash{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
       .tile{
         background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:14px;
@@ -54,9 +57,29 @@
       .tile:hover{ box-shadow:0 10px 22px rgba(0,0,0,.06) }
       .muted{ color:var(--muted) }
 
-      /* Skjul hele vårt UI først NÅR CMS faktisk er lastet */
-      body.cms-active .layout{ display:none }
+      /* CMS HOST: skjules først når editoren er i gang */
       #nc-root{ position:relative; z-index:0 }
+      body.cms-active .layout{ display:none }
+
+      /* Login-guard overlay */
+      .lock{
+        position:fixed; inset:0; display:grid; place-items:center; background:rgba(255,255,255,.8);
+        backdrop-filter: blur(4px); z-index:9999; padding:20px;
+      }
+      .lock__panel{
+        background:#fff; border:1px solid var(--border); border-radius:16px; padding:18px; max-width:520px; width:min(92%,520px);
+        box-shadow:0 12px 30px rgba(0,0,0,.12); text-align:center;
+      }
+      .lock__panel h1{ margin:.2rem 0 .6rem; font-size:1.35rem }
+      .lock__panel p{ margin:.2rem 0 .8rem; color:var(--muted) }
+
+      /* Fast "Til panel"-knapp når editoren vises */
+      #backPanel{
+        position:fixed; top:12px; left:12px; z-index:2147483647;
+        display:none; padding:.5rem .7rem; border-radius:10px; background:#fff; border:1px solid var(--border);
+        box-shadow:0 6px 18px rgba(0,0,0,.12); text-decoration:none; color:#111; font-weight:600;
+      }
+      body.cms-active #backPanel{ display:inline-block; }
 
       /* Mobil */
       @media (max-width: 960px){
@@ -65,18 +88,37 @@
         .dash{ grid-template-columns:1fr }
       }
     </style>
+
+    <!-- Identity må komme FØR vi initialiserer CMS -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <!-- VIKTIG: MANUAL INIT slår av auto-lesing av config.yml -->
+    <script>window.CMS_MANUAL_INIT = true;</script>
+    <!-- Decap CMS script (lastes, men gjør ingenting før vi kaller CMS.init) -->
+    <script src="https://cdn.jsdelivr.net/npm/decap-cms@^3.0.0/dist/decap-cms.js"></script>
   </head>
   <body>
-    <div class="layout">
+    <!-- Fast tilbake-knapp når CMS kjører -->
+    <a id="backPanel" href="/admin">🏠 Til panel</a>
+
+    <!-- LOGIN-GUARD (vises til du er innlogget) -->
+    <div id="lock" class="lock" style="display:none">
+      <div class="lock__panel">
+        <h1>Logg inn for å redigere</h1>
+        <p>Du må være innlogget for å endre innhold. Kryss av “remember” i innloggingen for å huskes på denne enheten.</p>
+        <button id="loginBtn" class="btn" type="button">Logg inn</button>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="layout" id="dashboard">
       <aside class="sidebar">
         <div class="sb-inner">
           <div class="brand"><b>Macé Cafe</b> <small>Admin</small></div>
           <div class="nav">
-            <a data-route="#/collections/forside">🖼️ Forside-bilder</a>
-            <a data-route="#/collections/dagens">⭐ Dagens middag</a>
-            <a data-route="#/collections/meny">🍽️ Meny</a>
-            <a data-route="#/collections/aapningstider">🕒 Åpningstider</a>
+            <a data-open="forside">🖼️ Forside-bilder</a>
+            <a data-open="dagens">⭐ Dagens middag</a>
+            <a data-open="meny">🍽️ Meny</a>
+            <a data-open="aapningstider">🕒 Åpningstider</a>
           </div>
           <div class="divider"></div>
           <a class="btn" href="/">↩︎ Til forsiden</a>
@@ -88,28 +130,28 @@
         <div class="toolbar">
           <div class="search">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#999" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="#999" stroke-width="2"/></svg>
-            <input type="search" placeholder="Søk (trykk Enter for å åpne Meny)" onkeydown="if(event.key==='Enter'){ openEditor('#/collections/meny'); }">
+            <input type="search" placeholder="Søk (trykk Enter for å åpne Meny)" onkeydown="if(event.key==='Enter'){ openEditor('meny'); }">
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn" type="button" onclick="openEditor('#/media')">Mediebibliotek</button>
-            <button class="btn" type="button" onclick="openEditor('#/workflow')">Arbeidsflyt</button>
+            <button class="btn" type="button" onclick="openEditor('media')">Mediebibliotek</button>
+            <button class="btn" type="button" onclick="openEditor('workflow')">Arbeidsflyt</button>
           </div>
         </div>
 
         <div class="dash">
-          <div class="tile" onclick="openEditor('#/collections/forside')">
+          <div class="tile" onclick="openEditor('forside')">
             <strong>Forside-bilder</strong>
-            <span class="muted">Endre velkomstbilde og smakebiter-galleri</span>
+            <span class="muted">Velkomstbilde + smakebiter-galleri</span>
           </div>
-          <div class="tile" onclick="openEditor('#/collections/dagens')">
+          <div class="tile" onclick="openEditor('dagens')">
             <strong>Dagens middag</strong>
             <span class="muted">Tittel, liten tekst, bilde og retter</span>
           </div>
-          <div class="tile" onclick="openEditor('#/collections/meny')">
+          <div class="tile" onclick="openEditor('meny')">
             <strong>Meny</strong>
             <span class="muted">Legg til/endre retter og priser</span>
           </div>
-          <div class="tile" onclick="openEditor('#/collections/aapningstider')">
+          <div class="tile" onclick="openEditor('aapningstider')">
             <strong>Åpningstider</strong>
             <span class="muted">Oppdater tider og notis</span>
           </div>
@@ -117,68 +159,232 @@
       </main>
     </div>
 
-    <!-- Her rendres Decap CMS når vi ber om det -->
+    <!-- CMS mount -->
     <div id="nc-root"></div>
 
     <script>
-      // Netto-innlogging
-      (function authUI(){
-        const btn = document.getElementById('authBtn');
-        const update = () => {
-          if (!window.netlifyIdentity) return;
-          const user = window.netlifyIdentity.currentUser();
-          btn.textContent = user ? 'Logg ut' : 'Logg inn';
+      /* -----------------------------
+         1) IDENTITET & LOGIN-GUARD
+         ----------------------------- */
+      const lock = document.getElementById('lock');
+      const authBtn = document.getElementById('authBtn');
+      const loginBtn = document.getElementById('loginBtn');
+
+      function isLoggedIn(){
+        return window.netlifyIdentity && window.netlifyIdentity.currentUser();
+      }
+      function updateAuthUI(){
+        if (!window.netlifyIdentity) return;
+        const u = window.netlifyIdentity.currentUser();
+        authBtn.textContent = u ? 'Logg ut' : 'Logg inn';
+        lock.style.display = u ? 'none' : 'grid';
+      }
+      document.addEventListener('DOMContentLoaded', () => {
+        if (!window.netlifyIdentity) return;
+        window.netlifyIdentity.on('init', updateAuthUI);
+        window.netlifyIdentity.on('login', () => { updateAuthUI(); /* hold på dashbordet til brukeren klikker noe */ });
+        window.netlifyIdentity.on('logout', () => { updateAuthUI(); location.href='/admin'; });
+        authBtn.onclick = () => {
+          const u = window.netlifyIdentity.currentUser();
+          if (u) window.netlifyIdentity.logout();
+          else window.netlifyIdentity.open('login'); // Netlify Identity husker enheten automatisk
         };
-        document.addEventListener('DOMContentLoaded', () => {
-          if (!window.netlifyIdentity) return;
-          window.netlifyIdentity.on('init', update);
-          window.netlifyIdentity.on('login', update);
-          window.netlifyIdentity.on('logout', update);
-          btn.onclick = () => {
-            const user = window.netlifyIdentity.currentUser();
-            if (user) window.netlifyIdentity.logout(); else window.netlifyIdentity.open('login');
-          };
-        });
-      })();
+        loginBtn.onclick = () => window.netlifyIdentity.open('login');
+      });
 
-      // Laster Decap CMS KUN når det trengs
-      let CMS_LOADED = false;
-      async function loadCMS(){
-        if (CMS_LOADED) return;
-        const SOURCES = [
-          'https://cdn.jsdelivr.net/npm/decap-cms@^3.0.0/dist/decap-cms.js',
-          'https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js',
-          'https://raw.githubusercontent.com/decaporg/decap-cms/main/packages/decap-cms/dist/decap-cms.js'
-        ];
-        function load(src){ return new Promise((ok,err)=>{ const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=()=>err(); document.body.appendChild(s); });}
-        for(const url of SOURCES){ try{ await load(url); CMS_LOADED = true; break; } catch(e){} }
-      }
+      /* ---------------------------------
+         2) CMS KONFIG — MANUAL INIT (JS)
+         --------------------------------- */
+      const CMS_CONFIG = {
+        backend: { name: 'git-gateway', branch: 'main' },
+        locale: 'nb',
+        media_folder: 'assets/uploads',
+        public_folder: '/assets/uploads',
+        editor: { preview: false },
 
-      async function openEditor(hash){
-        // 1) Laster CMS hvis ikke lastet
-        await loadCMS();
-        // 2) Nå skjuler vi vårt UI
-        document.body.classList.add('cms-active');
-        // 3) Naviger til ønsket rute i editoren
-        if (hash) location.hash = hash;
-      }
+        collections: [
+          {
+            name: 'forside',
+            label: 'Forside-bilder',
+            files: [
+              {
+                file: 'site_data/home.json',
+                name: 'home',
+                label: 'Forside',
+                format: 'json',
+                fields: [
+                  { label: "Velkomstbilde (høyre for 'Velkommen')", name: "hero_image", widget: "image", required: false },
+                  { label: "Alternativ tekst (SEO/tilg.)", name: "hero_image_alt", widget: "string", required: false },
+                  {
+                    label: "Smakebiter fra disken",
+                    name: "collage",
+                    widget: "list",
+                    collapsed: true,
+                    summary: "{{title}}",
+                    fields: [
+                      { label: "Tittel (kort)", name: "title", widget: "string" },
+                      { label: "Bilde", name: "image", widget: "image" },
+                      { label: "Bildetekst (valgfritt)", name: "caption", widget: "string", required: false }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            name: 'dagens',
+            label: 'Dagens middag',
+            files: [
+              {
+                file: 'site_data/dagens.json',
+                name: 'dagens',
+                label: 'Dagens middag',
+                format: 'json',
+                fields: [
+                  { label: "Overskrift", name: "title", widget: "string", default: "Dagens middag" },
+                  { label: "Undertekst (liten)", name: "subtitle", widget: "string", required: false, hint: "F.eks. 'Serveres 12–16'." },
+                  { label: "Bilde (valgfritt)", name: "image", widget: "image", required: false },
+                  {
+                    label: "Retter",
+                    name: "items",
+                    widget: "list",
+                    collapsed: true,
+                    summary: "{{title}} — {{price}}",
+                    fields: [
+                      { label: "Navn", name: "title", widget: "string" },
+                      { label: "Pris", name: "price", widget: "string" }
+                    ]
+                  },
+                  { label: "Oppdatert", name: "updated", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false }
+                ]
+              }
+            ]
+          },
+          {
+            name: 'meny',
+            label: 'Meny',
+            files: [
+              {
+                file: 'site_data/meny.json',
+                name: 'meny',
+                label: 'Kafémeny',
+                format: 'json',
+                fields: [
+                  {
+                    label: "Kaffe & varme drikker", name: "hotdrinks", widget: "list", collapsed: true, summary: "{{title}} — {{price}}",
+                    fields: [
+                      { label: "Navn", name: "title", widget: "string" },
+                      { label: "Pris", name: "price", widget: "string" },
+                      { label: "Plantebasert (V)", name: "vegan", widget: "boolean", required: false, default: false }
+                    ]
+                  },
+                  {
+                    label: "Frokost & lunsj", name: "lunch", widget: "list", collapsed: true, summary: "{{title}} — {{price}}",
+                    fields: [
+                      { label: "Navn", name: "title", widget: "string" },
+                      { label: "Pris", name: "price", widget: "string" },
+                      { label: "Plantebasert (V)", name: "vegan", widget: "boolean", required: false, default: false }
+                    ]
+                  },
+                  {
+                    label: "Søtt & kaldt", name: "dessert", widget: "list", collapsed: true, summary: "{{title}} — {{price}}",
+                    fields: [
+                      { label: "Navn", name: "title", widget: "string" },
+                      { label: "Pris", name: "price", widget: "string" },
+                      { label: "Plantebasert (V)", name: "vegan", widget: "boolean", required: false, default: false }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            name: 'aapningstider',
+            label: 'Åpningstider',
+            files: [
+              {
+                file: 'site_data/hours.json',
+                name: 'hours',
+                label: 'Åpningstider',
+                format: 'json',
+                fields: [
+                  { label: "Hverdager – åpner",  name: "weekdays_open",  widget: "string", default: "09:00" },
+                  { label: "Hverdager – stenger", name: "weekdays_close", widget: "string", default: "18:00" },
+                  { label: "Lørdag – åpner",     name: "saturday_open",  widget: "string", default: "09:00" },
+                  { label: "Lørdag – stenger",    name: "saturday_close", widget: "string", default: "17:00" },
+                  { label: "Notis (valgfri)",     name: "note",           widget: "string", required: false }
+                ]
+              }
+            ]
+          }
+        ]
+      };
 
-      // Direkte-lenker til editor (f.eks. /admin#/collections/meny)
-      (async function handleDirect(){
-        const wantCMS = /^#\/(collections|media|workflow|settings|)$/.test(location.hash) || location.hash === '#/' ;
-        if (wantCMS){
-          await loadCMS();
-          document.body.classList.add('cms-active');
+      /* ------------------------------------------------
+         3) ÅPNE EDITOR: init CMS først, så gå til riktig
+            rute/fil slik at feltene alltid vises.
+         ------------------------------------------------ */
+      let cmsInited = false;
+
+      function routeFor(key){
+        // Åpne direkte riktig fil-oppføring (ikke “tom editor”)
+        switch(key){
+          case 'forside':       return '#/collections/forside/entries/home';
+          case 'dagens':        return '#/collections/dagens/entries/dagens';
+          case 'meny':          return '#/collections/meny/entries/meny';
+          case 'aapningstider': return '#/collections/aapningstider/entries/hours';
+          case 'media':         return '#/media';
+          case 'workflow':      return '#/workflow';
+          default:              return '#/';
         }
-      })();
+      }
 
-      // Gjør venstremenys lenker “CMS-aware”
+      async function ensureCMS(){
+        if (cmsInited) return;
+        // Krev innlogging FØR init
+        if (!isLoggedIn()){
+          lock.style.display = 'grid';
+          return; // brukeren må logge inn først
+        }
+        CMS.init({ config: CMS_CONFIG });
+        cmsInited = true;
+        document.body.classList.add('cms-active'); // skjul dashbordet
+      }
+
+      async function openEditor(key){
+        if (!isLoggedIn()){
+          lock.style.display = 'grid';
+          return;
+        }
+        await ensureCMS();
+        location.hash = routeFor(key);
+      }
+
+      // Klikk i venstremeny/dash
       document.addEventListener('click', (e)=>{
-        const a = e.target.closest('a[data-route]');
+        const a = e.target.closest('[data-open]');
         if (!a) return;
         e.preventDefault();
-        openEditor(a.getAttribute('data-route'));
+        openEditor(a.getAttribute('data-open'));
       });
+
+      // Direkte-URLer til CMS (#/collections/…)
+      (function handleDirect(){
+        const h = location.hash || '';
+        const want = /^#\/(collections|media|workflow)/.test(h);
+        if (want){
+          // init når bruker er logget inn; ellers vis login-guard
+          if (isLoggedIn()){
+            ensureCMS().then(()=>{ /* behold hash */ });
+          } else {
+            lock.style.display = 'grid';
+            // etter login -> init og behold hash
+            if (window.netlifyIdentity){
+              window.netlifyIdentity.on('login', ()=> ensureCMS());
+            }
+          }
+        }
+      })();
     </script>
   </body>
 </html>
