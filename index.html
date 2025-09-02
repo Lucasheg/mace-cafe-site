@@ -12,12 +12,10 @@
   <!-- Netlify Identity for /admin -->
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function(){
+    document.addEventListener('DOMContentLoaded',function(){
       if (window.netlifyIdentity) {
-        window.netlifyIdentity.on('init', (user) => {
-          if (!user) {
-            window.netlifyIdentity.on('login', () => { document.location.href = '/admin/'; });
-          }
+        window.netlifyIdentity.on('init',(user)=>{
+          if(!user){ window.netlifyIdentity.on('login',()=>{ location.href='/admin/'; }); }
         });
       }
     });
@@ -41,7 +39,7 @@
     .btn--ghost{background:transparent; color:var(--espresso); border:1px solid var(--espresso)}
     .chip{border-radius:999px; padding:.45rem .7rem; background:rgba(255,255,255,.6); backdrop-filter: blur(8px); border:1px solid rgba(0,0,0,.06)}
 
-    /* Header – ren og enkel */
+    /* Header – ren, uten hvite bobler */
     header{position:sticky; top:0; z-index:50}
     .nav{
       display:flex; align-items:center; justify-content:space-between; gap:12px;
@@ -79,11 +77,10 @@
     .hero p{font-size:clamp(16px, 2.2vw, 20px); max-width:52ch; opacity:.9}
     .hero__cta{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:18px}
 
-    /* Hero-foto (bildet du sendte) */
+    /* Hero-foto (dynamisk via JSON) */
     .hero__photo{
       justify-self:end; width:min(520px, 100%); border-radius:22px; overflow:hidden; position:relative;
-      box-shadow:0 16px 40px rgba(0,0,0,.18);
-      transform:rotate(-.5deg);
+      box-shadow:0 16px 40px rgba(0,0,0,.18); transform:rotate(-.5deg);
     }
     .hero__photo img{ width:100%; height:100%; object-fit:cover; display:block; }
     .hero__photo::after{
@@ -92,10 +89,10 @@
     }
     @media (max-width: 900px){
       .hero .wrap{grid-template-columns:1fr;}
-      .hero__photo{ justify-self:stretch; transform:none }
+      .hero__photo{ justify-self:stretch; transform:none; order:2 }
     }
 
-    /* SPOTLIGHT — Dagens middag (ny, med bilde) */
+    /* SPOTLIGHT — Dagens middag (dynamisk, med bilde) */
     .spot{
       grid-column:1 / -1; display:grid; grid-template-columns:1.1fr .9fr; align-items:stretch; gap:16px;
       margin-top:8px; position:relative; border-radius:22px; overflow:hidden;
@@ -174,11 +171,15 @@
     .v{display:inline-grid; place-items:center; width:22px; height:22px; border-radius:999px; border:1px solid rgba(0,0,0,.15); font-size:12px}
     @media (max-width: 900px){.menu-grid{grid-template-columns:1fr}}
 
-    /* Besøk oss – kart, luftig og “utpakket” */
+    /* Besøk oss – kart ~⅓ mindre på desktop */
     .visit{padding-block: clamp(28px, 8vw, 90px)}
     .mapframe{
       border-radius:22px; overflow:hidden; box-shadow:0 16px 40px rgba(0,0,0,.10);
       border:1px solid rgba(0,0,0,.08); background:#fff;
+      width:100%;
+    }
+    @media (min-width: 900px){
+      .mapframe{ width:66%; margin-inline:auto; } /* ~1/3 mindre enn full bredde */
     }
     .map{aspect-ratio:16/9; border:0; width:100%}
     .mapbar{display:flex; justify-content:space-between; gap:10px; align-items:center; padding:10px 14px}
@@ -193,9 +194,7 @@
 <body>
   <header>
     <nav class="nav wrap" aria-label="Hovedmeny">
-      <div class="brand">
-        <div class="name">Macé Cafe</div>
-      </div>
+      <div class="brand"><div class="name">Macé Cafe</div></div>
       <div class="menu">
         <a href="#meny">Meny</a>
         <a href="https://www.instagram.com/macecafemolde/" target="_blank" rel="noopener">Instagram</a>
@@ -216,17 +215,17 @@
         </div>
       </div>
 
-      <!-- Høyre: foto fra kjøkkenet (bildet du sendte) -->
-      <figure class="hero__photo reveal">
-        <img src="/assets/uploads/hero-chef.jpg" alt="Kokk som gjør klar dagens rett på Macé Cafe" loading="eager">
+      <!-- Høyre: foto (hentes fra home.json) -->
+      <figure class="hero__photo reveal" id="hero-photo" style="display:none">
+        <img id="hero-img" src="" alt="">
       </figure>
 
-      <!-- SPOTLIGHT: Dagens middag (ligger rett etter intro, før infoboblen) -->
+      <!-- SPOTLIGHT: Dagens -->
       <section class="spot reveal" id="spotlight" style="display:none">
         <div class="spot__body">
           <div class="spot__eyebrow">Dagens</div>
           <h3 class="spot__title" id="spot-title">Dagens middag</h3>
-          <p class="spot__subtitle" id="spot-sub">Oppdateres daglig – spør oss i disken</p>
+          <p class="spot__subtitle" id="spot-sub">Oppdateres daglig</p>
           <ul class="spot__list" id="spot-list"></ul>
         </div>
         <div class="spot__art" id="spot-art" aria-hidden="true" style="display:none">
@@ -234,7 +233,7 @@
         </div>
       </section>
 
-      <!-- Høyre: info-boble -->
+      <!-- Info-boble -->
       <aside class="hero__card reveal" aria-label="Nøkkelinformasjon">
         <div class="hero__card-inner">
           <dl class="kv">
@@ -255,28 +254,7 @@
     </div>
     <p>Et lite utvalg av hva du kan forvente – endres jevnlig etter råvarer og sesong.</p>
 
-    <div class="grid" role="list">
-      <article class="card span-5 row-2 reveal" role="listitem" style="--rot:-1.6deg">
-        <div class="card__img" aria-hidden="true">Latte Art</div>
-        <div class="card__cap">Klassisk cappuccino med fløyelsmykt skum</div>
-      </article>
-      <article class="card span-3 reveal" role="listitem" style="--rot:.8deg">
-        <div class="card__img" aria-hidden="true">Frokost</div>
-        <div class="card__cap">Surdeigsbrød, egg & grønt</div>
-      </article>
-      <article class="card span-4 row-2 reveal" role="listitem" style="--rot:-.6deg">
-        <div class="card__img" aria-hidden="true">Kake</div>
-        <div class="card__cap">Brownie & pecan pie (også plantebasert)</div>
-      </article>
-      <article class="card span-6 reveal" role="listitem" style="--rot:.6deg">
-        <div class="card__img" aria-hidden="true">Lunsj</div>
-        <div class="card__cap">Dagens – spør i kassen</div>
-      </article>
-      <article class="card span-6 reveal" role="listitem" style="--rot:-.4deg">
-        <div class="card__img" aria-hidden="true">Iskaffe</div>
-        <div class="card__cap">Avkjølende glass med espresso & melk</div>
-      </article>
-    </div>
+    <div class="grid" id="collage-grid" role="list"></div>
   </section>
 
   <section id="meny" class="menu-section" aria-label="Meny">
@@ -327,6 +305,7 @@
   </footer>
 
   <script>
+    // Årstall
     document.getElementById('year').textContent = new Date().getFullYear();
 
     // Reveal fallback
@@ -338,71 +317,45 @@
     }
   </script>
 
-  <!-- Hent data fra JSON -->
+  <!-- Hent data fra JSON (robust mot manglende felt) -->
   <script>
   (async () => {
     const q = (s) => document.querySelector(s);
     try {
-      const [menyRes, hoursRes, dagensRes] = await Promise.all([
-        fetch('/site_data/meny.json', {cache:'no-store'}),
+      const [homeRes, menyRes, hoursRes, dagensRes] = await Promise.all([
+        fetch('/site_data/home.json',  {cache:'no-store'}),
+        fetch('/site_data/meny.json',  {cache:'no-store'}),
         fetch('/site_data/hours.json', {cache:'no-store'}),
-        fetch('/site_data/dagens.json', {cache:'no-store'})
+        fetch('/site_data/dagens.json',{cache:'no-store'})
       ]);
-      const meny = await menyRes.json();
-      const hours = await hoursRes.json();
-      const dagens = await dagensRes.json();
+      const home   = await homeRes.json().catch(()=>({}));
+      const meny   = await menyRes.json().catch(()=>({}));
+      const hours  = await hoursRes.json().catch(()=>({}));
+      const dagens = await dagensRes.json().catch(()=>({}));
 
-      // Meny
-      function fillMenu(id, items) {
-        const box = document.getElementById(id);
-        if (!box || !items) return;
-        [...box.querySelectorAll('.menu-item')].forEach(el => el.remove());
-        items.forEach(it => {
-          const row = document.createElement('div');
-          row.className = 'menu-item';
-          const left = document.createElement('span');
-          left.textContent = it.title;
-          if (it.vegan) {
-            const v = document.createElement('span');
-            v.className = 'v'; v.title = 'Plantebasert'; v.textContent = 'V';
-            left.appendChild(document.createTextNode(' '));
-            left.appendChild(v);
-          }
-          const right = document.createElement('span');
-          right.textContent = it.price;
-          row.append(left, right);
-          box.appendChild(row);
-        });
-      }
-      fillMenu('menu-hot', meny.hotdrinks);
-      fillMenu('menu-lunch', meny.lunch);
-      fillMenu('menu-sweet', meny.dessert);
-
-      // Åpningstider-linje
-      const hoursLine = q('#hours-line');
-      if (hoursLine) {
-        hoursLine.textContent = `Man–Fre ${hours.weekdays_open} – ${hours.weekdays_close} · Lør ${hours.saturday_open} – ${hours.saturday_close}`;
+      // HERO-bilde
+      if (home.hero_image){
+        const fig = q('#hero-photo'); const img = q('#hero-img');
+        img.src = home.hero_image;
+        img.alt = home.hero_image_alt || "Macé Cafe";
+        fig.style.display = 'block';
       }
 
       // SPOTLIGHT – Dagens
       const spot = q('#spotlight');
-      const titleEl = q('#spot-title');
-      const subEl = q('#spot-sub');
-      const listEl = q('#spot-list');
-      const artWrap = q('#spot-art');
-      const artImg = q('#spot-img');
-
-      if (Array.isArray(dagens.items) && dagens.items.length) {
-        if (dagens.title) titleEl.textContent = dagens.title;
-        if (dagens.subtitle) subEl.textContent = dagens.subtitle;
+      if (Array.isArray(dagens.items) && dagens.items.length){
+        const titleEl = q('#spot-title'); const subEl = q('#spot-sub');
+        const listEl = q('#spot-list'); const artWrap = q('#spot-art'); const artImg = q('#spot-img');
+        if (dagens.title)    titleEl.textContent = dagens.title;
+        if (dagens.subtitle) subEl.textContent   = dagens.subtitle;
         listEl.innerHTML = '';
-        dagens.items.forEach(i => {
+        dagens.items.forEach(i=>{
           const li = document.createElement('li');
           li.className = 'spot__chip';
           li.textContent = i.price ? `${i.title} ${i.price}` : i.title;
           listEl.appendChild(li);
         });
-        if (dagens.image) {
+        if (dagens.image){
           artImg.src = dagens.image;
           artImg.alt = (dagens.title || 'Dagens rett') + ' – bilde';
           artWrap.style.display = 'block';
@@ -411,7 +364,57 @@
         }
         spot.style.display = 'grid';
       }
-    } catch (e) {
+
+      // Meny (3 kort)
+      function fillMenu(id, items){
+        const box = document.getElementById(id); if(!box || !items) return;
+        [...box.querySelectorAll('.menu-item')].forEach(el=>el.remove());
+        items.forEach(it=>{
+          const row = document.createElement('div'); row.className='menu-item';
+          const left = document.createElement('span'); left.textContent = it.title;
+          if (it.vegan){ const v=document.createElement('span'); v.className='v'; v.title='Plantebasert'; v.textContent='V'; left.append(' ', v); }
+          const right = document.createElement('span'); right.textContent = it.price;
+          row.append(left,right); box.appendChild(row);
+        });
+      }
+      fillMenu('menu-hot',   meny.hotdrinks);
+      fillMenu('menu-lunch', meny.lunch);
+      fillMenu('menu-sweet', meny.dessert);
+
+      // Åpningstider-linje
+      const hoursLine = q('#hours-line');
+      if (hoursLine && hours.weekdays_open && hours.weekdays_close && hours.saturday_open && hours.saturday_close){
+        hoursLine.textContent = `Man–Fre ${hours.weekdays_open} – ${hours.weekdays_close} · Lør ${hours.saturday_open} – ${hours.saturday_close}`;
+      }
+
+      // Smakebiter fra home.json
+      const grid = q('#collage-grid');
+      grid.innerHTML = '';
+      const items = Array.isArray(home.collage) ? home.collage : [];
+      if (items.length){
+        // Lag litt variasjon i rotasjon/spenn for desktop
+        const spans = ['span-5 row-2','span-3','span-4 row-2','span-6','span-6'];
+        const rots  = [-1.6, .8, -.6, .6, -.4];
+        items.forEach((it, idx)=>{
+          const card = document.createElement('article');
+          card.className = `card ${spans[idx % spans.length]}`; card.setAttribute('role','listitem');
+          card.style.setProperty('--rot', rots[idx % rots.length] + 'deg');
+          const img = document.createElement('div'); img.className='card__img';
+          if (it.image){
+            const tag = document.createElement('img'); tag.src = it.image; tag.alt = it.title || 'Smakebit'; tag.loading='lazy';
+            tag.style.width='100%'; tag.style.height='100%'; tag.style.objectFit='cover';
+            img.innerHTML=''; img.appendChild(tag);
+          } else {
+            img.textContent = it.title || 'Smakebit';
+          }
+          const cap = document.createElement('div'); cap.className='card__cap';
+          cap.textContent = it.caption || it.title || '';
+          card.append(img, cap); grid.appendChild(card);
+        });
+      } else {
+        // Fallback (viser tom grid hvis ingen data, men ikke feiler)
+      }
+    } catch(e){
       console.warn('Kunne ikke laste CMS-data:', e);
     }
   })();
