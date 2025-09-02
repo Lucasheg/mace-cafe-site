@@ -1,0 +1,11 @@
+{
+  "hero_image": "/assets/uploads/hero-chef.jpg",
+  "hero_image_alt": "Kokk som gjør klar dagens rett på Macé Cafe",
+  "collage": [
+    { "title": "Latte Art", "image": "/assets/uploads/latte.jpg", "caption": "Klassisk cappuccino med fløyelsmykt skum" },
+    { "title": "Frokost", "image": "/assets/uploads/frokost.jpg", "caption": "Surdeigsbrød, egg & grønt" },
+    { "title": "Kake", "image": "/assets/uploads/kake.jpg", "caption": "Brownie & pecan pie" },
+    { "title": "Lunsj", "image": "/assets/uploads/lunsj.jpg", "caption": "Dagens – spør i kassen" },
+    { "title": "Iskaffe", "image": "/assets/uploads/iskaffe.jpg", "caption": "Avkjølende glass med espresso & melk" }
+  ]
+}
