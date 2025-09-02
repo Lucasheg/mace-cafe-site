@@ -24,6 +24,7 @@
       .brand{ display:flex; gap:.5rem; align-items:baseline; padding:4px 4px 6px }
       .brand b{ color:var(--brand); font-weight:800; font-size:1.05rem }
       .brand small{ color:var(--muted) }
+
       .nav{ display:grid; gap:8px; margin-top:6px }
       .nav a{
         display:flex; align-items:center; gap:.6rem; padding:.7rem .8rem; border-radius:10px; text-decoration:none; color:inherit;
@@ -33,7 +34,7 @@
       .divider{ height:1px; background:var(--border); margin:10px 0 }
       .btn{
         display:inline-flex; align-items:center; gap:.5rem; padding:.55rem .8rem; border-radius:10px; text-decoration:none; font-weight:600;
-        border:1px solid var(--border); background:#fff; color:#111;
+        border:1px solid var(--border); background:#fff; color:#111; cursor:pointer;
       }
       .btn:hover{ background:#f7f7f7 }
 
@@ -44,20 +45,20 @@
       }
       .search{ flex:1; min-width:220px; display:flex; align-items:center; gap:6px; border:1px solid var(--border); border-radius:10px; padding:.5rem .6rem; background:#fff }
       .search input{ border:0; outline:0; background:transparent; width:100% }
-      .dash{
-        display:grid; grid-template-columns:repeat(3,1fr); gap:12px;
-      }
+
+      .dash{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
       .tile{
         background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:14px;
-        text-decoration:none; color:inherit; display:grid; gap:8px;
+        text-decoration:none; color:inherit; display:grid; gap:8px; cursor:pointer;
       }
       .tile:hover{ box-shadow:0 10px 22px rgba(0,0,0,.06) }
       .muted{ color:var(--muted) }
 
-      /* Skjul hele vårt UI i CMS-ruter */
+      /* Skjul hele vårt UI først NÅR CMS faktisk er lastet */
       body.cms-active .layout{ display:none }
       #nc-root{ position:relative; z-index:0 }
 
+      /* Mobil */
       @media (max-width: 960px){
         .layout{ grid-template-columns:1fr }
         .sidebar{ position:static; height:auto }
@@ -72,14 +73,14 @@
         <div class="sb-inner">
           <div class="brand"><b>Macé Cafe</b> <small>Admin</small></div>
           <div class="nav">
-            <a href="#/collections/forside">🖼️ Forside-bilder</a>
-            <a href="#/collections/dagens">⭐ Dagens middag</a>
-            <a href="#/collections/meny">🍽️ Meny</a>
-            <a href="#/collections/aapningstider">🕒 Åpningstider</a>
+            <a data-route="#/collections/forside">🖼️ Forside-bilder</a>
+            <a data-route="#/collections/dagens">⭐ Dagens middag</a>
+            <a data-route="#/collections/meny">🍽️ Meny</a>
+            <a data-route="#/collections/aapningstider">🕒 Åpningstider</a>
           </div>
           <div class="divider"></div>
           <a class="btn" href="/">↩︎ Til forsiden</a>
-          <button id="authBtn" class="btn">Logg inn</button>
+          <button id="authBtn" class="btn" type="button">Logg inn</button>
         </div>
       </aside>
 
@@ -87,40 +88,40 @@
         <div class="toolbar">
           <div class="search">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#999" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="#999" stroke-width="2"/></svg>
-            <input type="search" placeholder="Søk (skriv og trykk Enter for å åpne Meny)" onkeydown="if(event.key==='Enter'){ location.hash='#/collections/meny'; }">
+            <input type="search" placeholder="Søk (trykk Enter for å åpne Meny)" onkeydown="if(event.key==='Enter'){ openEditor('#/collections/meny'); }">
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <a class="btn" href="#/media">Mediebibliotek</a>
-            <a class="btn" href="#/workflow">Arbeidsflyt</a>
+            <button class="btn" type="button" onclick="openEditor('#/media')">Mediebibliotek</button>
+            <button class="btn" type="button" onclick="openEditor('#/workflow')">Arbeidsflyt</button>
           </div>
         </div>
 
         <div class="dash">
-          <a class="tile" href="#/collections/forside">
+          <div class="tile" onclick="openEditor('#/collections/forside')">
             <strong>Forside-bilder</strong>
-            <span class="muted">Endre velkomstbildet og smakebiter-galleriet</span>
-          </a>
-          <a class="tile" href="#/collections/dagens">
+            <span class="muted">Endre velkomstbilde og smakebiter-galleri</span>
+          </div>
+          <div class="tile" onclick="openEditor('#/collections/dagens')">
             <strong>Dagens middag</strong>
-            <span class="muted">Tittel, liten tekst, bilde og dagens retter</span>
-          </a>
-          <a class="tile" href="#/collections/meny">
+            <span class="muted">Tittel, liten tekst, bilde og retter</span>
+          </div>
+          <div class="tile" onclick="openEditor('#/collections/meny')">
             <strong>Meny</strong>
             <span class="muted">Legg til/endre retter og priser</span>
-          </a>
-          <a class="tile" href="#/collections/aapningstider">
+          </div>
+          <div class="tile" onclick="openEditor('#/collections/aapningstider')">
             <strong>Åpningstider</strong>
             <span class="muted">Oppdater tider og notis</span>
-          </a>
+          </div>
         </div>
       </main>
     </div>
 
-    <!-- Decap CMS mount -->
+    <!-- Her rendres Decap CMS når vi ber om det -->
     <div id="nc-root"></div>
 
     <script>
-      // Logg inn/ut-knapp
+      // Netto-innlogging
       (function authUI(){
         const btn = document.getElementById('authBtn');
         const update = () => {
@@ -140,24 +141,44 @@
         });
       })();
 
-      // Skjul dashboard i editor-ruter
-      (function routeAwareness(){
-        const isCMS = () => /^#\/(collections|media|workflow)/.test(location.hash || '');
-        const apply = () => document.body.classList.toggle('cms-active', isCMS());
-        window.addEventListener('hashchange', apply);
-        document.addEventListener('DOMContentLoaded', apply);
-      })();
-
-      // Last Decap (CDN-fallbacks)
-      (async function boot(){
+      // Laster Decap CMS KUN når det trengs
+      let CMS_LOADED = false;
+      async function loadCMS(){
+        if (CMS_LOADED) return;
         const SOURCES = [
           'https://cdn.jsdelivr.net/npm/decap-cms@^3.0.0/dist/decap-cms.js',
           'https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js',
           'https://raw.githubusercontent.com/decaporg/decap-cms/main/packages/decap-cms/dist/decap-cms.js'
         ];
         function load(src){ return new Promise((ok,err)=>{ const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=()=>err(); document.body.appendChild(s); });}
-        for(const url of SOURCES){ try{ await load(url); break; } catch(e){} }
+        for(const url of SOURCES){ try{ await load(url); CMS_LOADED = true; break; } catch(e){} }
+      }
+
+      async function openEditor(hash){
+        // 1) Laster CMS hvis ikke lastet
+        await loadCMS();
+        // 2) Nå skjuler vi vårt UI
+        document.body.classList.add('cms-active');
+        // 3) Naviger til ønsket rute i editoren
+        if (hash) location.hash = hash;
+      }
+
+      // Direkte-lenker til editor (f.eks. /admin#/collections/meny)
+      (async function handleDirect(){
+        const wantCMS = /^#\/(collections|media|workflow|settings|)$/.test(location.hash) || location.hash === '#/' ;
+        if (wantCMS){
+          await loadCMS();
+          document.body.classList.add('cms-active');
+        }
       })();
+
+      // Gjør venstremenys lenker “CMS-aware”
+      document.addEventListener('click', (e)=>{
+        const a = e.target.closest('a[data-route]');
+        if (!a) return;
+        e.preventDefault();
+        openEditor(a.getAttribute('data-route'));
+      });
     </script>
   </body>
 </html>
