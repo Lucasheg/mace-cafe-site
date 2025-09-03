@@ -1,0 +1,7 @@
+[build]
+  publish = "."
+  command = "bash admin/vendor/fetch-cms.sh"
+
+# Optional: make sure Netlify uses the latest Ubuntu image with curl preinstalled.
+[build.environment]
+  NODE_VERSION = "18"
