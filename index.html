@@ -22,41 +22,106 @@
   </script>
 
   <style>
+    /* ===============================
+       DESIGN RULES IMPLEMENTATION
+       =============================== */
+
+    /* D) Color — 60/30/10 palette (+ high-contrast text) */
     :root{
-      --espresso:#4A3428; --latte:#C8B7A6; --foam:#F3EEE9; --sea:#8FA8BF; --copper:#A36B3F; --ink:#1a1410;
-      --radius:22px; --max:1200px;
+      /* Neutral (60%) */
+      --neutral: #F3EEE9;  /* foam */
+      /* Secondary (30%) — surfaces, cards, section backdrops */
+      --secondary: #FFFFFF; /* white as secondary surface */
+      /* Accent (10%) — CTAs, highlights */
+      --accent: #A36B3F;    /* copper */
+      /* Text / foreground with strong contrast on neutral & secondary */
+      --ink:#1A1410;        /* very dark brown */
+      --espresso:#4A3428;   /* rich brown, can be used for text/CTA when needed */
+
+      /* Type scale (A) — Major Third 1.25 from base 16px */
+      --fs-p: 16px;
+      --fs-h6: calc(var(--fs-p) * 1.25);                  /* 20px */
+      --fs-h5: calc(var(--fs-h6) * 1.25);                 /* 25px */
+      --fs-h4: calc(var(--fs-h5) * 1.25);                 /* 31.25px */
+      --fs-h3: calc(var(--fs-h4) * 1.25);                 /* 39.06px */
+      --fs-h2: calc(var(--fs-h3) * 1.25);                 /* 48.83px */
+      --fs-h1: calc(var(--fs-h2) * 1.25);                 /* 61.04px */
+
+      /* Letter-spacing (A.3) */
+      --ls-h6: -0.005em;   /* -0.5% */
+      --ls-h3: -0.015em;   /* -1.5% */
+      --ls-h1: -0.02em;    /* -2% */
+
+      /* Line-heights (A.4) */
+      --lh-p: 1.5;         /* 150% */
+      --lh-h4: 1.3;        /* 130% */
+      --lh-h2: 1.1;        /* 110% */
+      --lh-h1: 1.0;        /* 100% */
+
+      /* Layout (B) */
+      --max: 1200px;                   /* container max width */
+      /* 8pt spacing scale (B.2) */
+      --s-8: 8px; --s-16: 16px; --s-24: 24px; --s-32: 32px; --s-40: 40px; --s-48: 48px; --s-56: 56px; --s-64: 64px; --s-80: 80px; --s-96: 96px;
+
+      /* Corners / depth */
+      --radius: 16px;
+      --radius-lg: 24px;
+
+      /* Decorative tints (used subtly) */
+      --latte:#C8B7A6; --sea:#8FA8BF;
     }
+
+    /* Base */
     *,*::before,*::after{box-sizing:border-box}
     html,body{height:100%}
-    body{ margin:0; color:var(--ink); background:var(--foam);
-      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans"; line-height:1.45; letter-spacing:.01em; }
-    .h{font-family:"Playfair Display",serif; letter-spacing:.01em}
-    a{color:inherit; text-decoration:none}
+    body{
+      margin:0; color:var(--ink); background:var(--neutral);
+      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans";
+      font-size: var(--fs-p); line-height: var(--lh-p); letter-spacing:.01em;
+    }
     img{max-width:100%; display:block}
-    .wrap{width:min(100%, var(--max)); margin-inline:auto; padding-inline: clamp(16px, 4vw, 32px)}
+    a{color:inherit; text-decoration:none}
+    .wrap{width:min(100%, var(--max)); margin-inline:auto; padding-inline: clamp(var(--s-16), 4vw, var(--s-32))}
 
-    .btn{display:inline-block; padding:.9rem 1.1rem; border-radius:14px; font-weight:600; background:var(--espresso); color:#fff; box-shadow:0 8px 18px rgba(0,0,0,.15); transition:transform .25s ease, box-shadow .25s ease}
-    .btn:hover{transform:translateY(-2px); box-shadow:0 12px 22px rgba(0,0,0,.18)}
-    .btn--ghost{background:transparent; color:var(--espresso); border:1px solid var(--espresso)}
-    .chip{border-radius:999px; padding:.45rem .7rem; background:rgba(255,255,255,.6); backdrop-filter: blur(8px); border:1px solid rgba(0,0,0,.06)}
+    /* Headings (Playfair) with type scale + letter-spacing rules */
+    .h{font-family:"Playfair Display",serif}
+    h1.h{ font-size: clamp(36px, 6vw, var(--fs-h1)); line-height: var(--lh-h1); letter-spacing: var(--ls-h1); margin: 0 0 var(--s-16) }
+    h2.h{ font-size: clamp(28px, 4.5vw, var(--fs-h2)); line-height: var(--lh-h2); margin: 0 0 var(--s-16) }
+    h3.h{ font-size: clamp(24px, 3.8vw, var(--fs-h3)); letter-spacing: var(--ls-h3); margin: 0 0 var(--s-16) }
+    h4.h{ font-size: clamp(20px, 3.2vw, var(--fs-h4)); line-height: var(--lh-h4); margin: 0 0 var(--s-16) }
+    h5.h{ font-size: clamp(18px, 2.6vw, var(--fs-h5)); margin: 0 0 var(--s-16) }
+    h6.h{ font-size: clamp(16px, 2.2vw, var(--fs-h6)); letter-spacing: var(--ls-h6); margin: 0 0 var(--s-16) }
 
-    /* Header – IKKE sticky */
+    /* Buttons — Primary = conversion goal (E) “Finn veien”  */
+    .btn{
+      display:inline-block; padding: 12px 16px; /* 8pt grid */
+      border-radius: 12px; font-weight:600;
+      background: var(--espresso); color:#fff; /* strong contrast */
+      box-shadow: 0 8px 16px rgba(0,0,0,.15);
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .btn:hover{ transform: translateY(-2px); box-shadow: 0 12px 20px rgba(0,0,0,.18) }
+    .btn--ghost{ background:transparent; color:var(--espresso); border:2px solid var(--espresso) }
+    .btn--accent{ background: var(--accent); color: #fff } /* optional accent usage */
+    .chip{border-radius:999px; padding:6px 10px; background:rgba(255,255,255,.7); border:1px solid rgba(0,0,0,.06)}
+
+    /* Header (not sticky), 8pt spacing */
     header{position:static}
     .nav{
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-      padding:.8rem clamp(16px, 4vw, 32px);
-      background:linear-gradient(180deg, rgba(255,255,255,.62), rgba(255,255,255,.35));
+      display:flex; align-items:center; justify-content:space-between; gap: var(--s-16);
+      padding: var(--s-16) clamp(var(--s-16), 4vw, var(--s-32));
+      background: linear-gradient(180deg, rgba(255,255,255,.62), rgba(255,255,255,.35));
       backdrop-filter: blur(10px);
       border-bottom:1px solid rgba(0,0,0,.08);
     }
     .brand .name{
       font-family:"Playfair Display",serif; font-weight:800; letter-spacing:.02em;
-      font-size:clamp(26px, 3.8vw, 42px); line-height:1;
+      font-size: clamp(24px, 3.6vw, 40px); line-height:1;
     }
-    .menu{display:flex; gap:18px; align-items:center}
-    .menu a{padding:.2rem 0; position:relative; font-weight:600; opacity:.95;}
+    .menu{display:flex; gap: var(--s-16); align-items:center}
+    .menu a{padding:2px 0; position:relative; font-weight:600; opacity:.95;}
     .menu a::after{
-      content:""; position:absolute; left:0; bottom:-3px; height:2px; width:0; background:var(--espresso);
+      content:""; position:absolute; left:0; bottom:-4px; height:2px; width:0; background:var(--espresso);
       transition:width .22s ease;
     }
     .menu a:hover::after{ width:100% }
@@ -64,177 +129,160 @@
     /* Hero */
     .hero{ position:relative; overflow:hidden; isolation:isolate; color:var(--espresso) }
     .hero__bg{
-      position:absolute; inset:0; z-index:-1; transform:translateZ(0);
+      position:absolute; inset:0; z-index:-1;
       background:
-        radial-gradient(1200px 500px at 85% -10%, rgba(163,107,63,.35), transparent 55%),
-        radial-gradient(900px 600px at -10% 10%, rgba(79,113,140,.20), transparent 60%),
-        radial-gradient(800px 500px at 50% 110%, rgba(200,183,166,.45), transparent 60%),
-        linear-gradient(180deg, #ffffff, var(--foam));
-      -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 300%22 preserveAspectRatio=%22none%22><path d=%22M0 0 H1600 V240 Q1200 300 800 220 T0 240 Z%22 fill=%22%23000%22/></svg>') bottom left / 100% 120% no-repeat;
-              mask: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 300%22 preserveAspectRatio=%22none%22><path d=%22M0 0 H1600 V240 Q1200 300 800 220 T0 240 Z%22 fill=%22%23000%22/></svg>') bottom left / 100% 120% no-repeat;
+        radial-gradient(1000px 420px at 85% -10%, rgba(163,107,63,.22), transparent 55%),
+        radial-gradient(760px 520px at -10% 10%, rgba(79,113,140,.14), transparent 60%),
+        radial-gradient(640px 420px at 50% 110%, rgba(200,183,166,.30), transparent 60%),
+        linear-gradient(180deg, #ffffff, var(--neutral));
+      -webkit-mask: linear-gradient(#000, #000); /* keeps shape simple for contrast clarity */
+              mask: linear-gradient(#000, #000);
     }
     .hero .wrap{
-      display:grid; grid-template-columns:1.1fr .9fr; align-items:center;
-      gap:clamp(18px,4vw,48px); padding-block: clamp(48px, 10vw, 120px); position:relative
+      display:grid; grid-template-columns: 1.1fr .9fr; align-items:start;
+      gap: var(--s-32); padding-block: clamp(var(--s-32), 6vw, var(--s-72));
+      position:relative;
     }
-    .hero h1{font-size:clamp(40px, 7vw, 86px); line-height:1; margin:0}
-    .hero p{font-size:clamp(16px, 2.2vw, 20px); max-width:52ch; opacity:.9}
-    .hero__cta{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:18px}
+    .hero p{max-width: 52ch; opacity:.95; margin: 0 0 var(--s-16)}
+    .hero__cta{display:flex; gap: var(--s-16); align-items:center; flex-wrap:wrap; margin-top: var(--s-16)}
+    /* Primary conversion (E): make “Finn veien” the solid button; “Se meny” becomes ghost */
+    .hero__cta a:first-child{ order:2 }  /* Se meny (ghost) */
+    .hero__cta a:last-child{ order:1 }   /* Finn veien (primary) */
 
-    /* Hero-foto (desktop + mobil-variant) */
+    /* Hero image */
     .hero__photo{
-      justify-self:end; width:min(520px, 100%); border-radius:22px; overflow:hidden; position:relative;
-      box-shadow:0 16px 40px rgba(0,0,0,.18); transform:rotate(-.5deg);
+      justify-self:end; width:min(468px, 100%); /* 10% smaller than original */
+      border-radius: var(--radius-lg); overflow:hidden; position:relative;
+      box-shadow:0 16px 32px rgba(0,0,0,.18); transform:rotate(-.5deg);
     }
-    .hero__photo img{ width:100%; height:100%; object-fit:cover; display:block; }
     .hero__photo::after{
       content:""; position:absolute; inset:0; pointer-events:none;
       background:linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.12) 85%);
     }
 
-    /* SPOTLIGHT — Dagens middag */
+    /* Dagens (spotlight) — uses secondary surfaces with accent border for hierarchy (C) */
     .spot{
-      grid-column:1 / -1; display:grid; grid-template-columns:1.1fr .9fr; align-items:stretch; gap:16px;
-      margin-top:8px; position:relative; border-radius:22px; overflow:hidden;
-      background:
-        radial-gradient(900px 240px at 0% 0%, rgba(163,107,63,.12), transparent 70%),
-        radial-gradient(700px 280px at 100% 100%, rgba(200,183,166,.18), transparent 70%),
-        #fff;
+      grid-column:1 / -1; display:grid; grid-template-columns:1.1fr .9fr; align-items:stretch; gap: var(--s-16);
+      margin-top: var(--s-8); position:relative; border-radius: var(--radius-lg); overflow:hidden;
+      background: var(--secondary);
       border:1px solid rgba(163,107,63,.28);
-      box-shadow: 0 14px 36px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.6);
+      box-shadow: 0 14px 28px rgba(0,0,0,.10);
     }
-    .spot__body{ padding:18px 18px 18px clamp(18px, 3vw, 28px); position:relative; z-index:1 }
-    .spot__eyebrow{ font-weight:700; letter-spacing:.08em; font-size:.8rem; text-transform:uppercase; color:var(--espresso); opacity:.85 }
+    .spot__body{ padding: var(--s-24) var(--s-24) var(--s-24) clamp(var(--s-16), 3vw, var(--s-32)); position:relative; z-index:1 }
+    .spot__eyebrow{ font-weight:700; letter-spacing:.08em; font-size: 13px; text-transform:uppercase; color:var(--espresso); opacity:.85 }
     .spot__title{ font-family:"Playfair Display",serif; font-weight:800; font-size: clamp(22px, 3.2vw, 34px); margin:.2rem 0 .2rem }
-    .spot__subtitle{ opacity:.85; margin:0 0 .6rem }
-    .spot__list{ display:flex; flex-wrap:wrap; gap:10px; margin:0; padding:0; list-style:none }
+    .spot__subtitle{ opacity:.85; margin:0 0 var(--s-8) }
+    .spot__list{ display:flex; flex-wrap:wrap; gap: var(--s-8); margin:0; padding:0; list-style:none }
     .spot__chip{
-      background:rgba(255,255,255,.85); border:1px solid rgba(0,0,0,.06); backdrop-filter: blur(6px);
-      padding:.5rem .7rem; border-radius:999px; font-weight:600;
+      background:rgba(255,255,255,.9); border:1px solid rgba(0,0,0,.06);
+      padding:8px 12px; border-radius:999px; font-weight:600;
     }
     .spot__art{ position:relative; overflow:hidden }
     .spot__art img{ width:100%; height:100%; object-fit:cover; display:block }
-    .spot__art::after{
-      content:""; position:absolute; inset:0; pointer-events:none;
-      background:linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,.18) 100%);
-    }
 
-    /* Info-kort (original i hero) */
+    /* Info card (will be moved under collage and slimmed) */
     .hero__card{
-      border-radius:18px; background:#fff; border:1px solid rgba(0,0,0,.08); box-shadow:0 10px 26px rgba(0,0,0,.10);
-      padding:16px; align-self:start; grid-column:1 / -1;
+      border-radius: var(--radius); background:var(--secondary);
+      border:1px solid rgba(0,0,0,.08); box-shadow:0 10px 20px rgba(0,0,0,.10);
+      padding: var(--s-16); align-self:start; grid-column:1 / -1;
     }
-    .hero__card-inner{ display:block }
-    .kv{display:grid; grid-template-columns:auto 1fr; gap:.25rem .75rem; align-items:center; font-size:15px}
+    .kv{display:grid; grid-template-columns:auto 1fr; gap: 4px var(--s-16); align-items:center; font-size:15px}
     .kv dt{font-weight:700; color:var(--espresso)}
     .kv dd{margin:0; opacity:.9}
 
-    /* Collage */
-    .collage{padding-block: clamp(36px, 8vw, 90px)}
-    .collage h2{font-size: clamp(28px, 4.5vw, 52px); margin:0 0 10px}
-    .collage p{max-width:60ch; opacity:.85}
-    .grid{margin-top:24px; display:grid; grid-template-columns:repeat(12, 1fr); gap:12px}
-    .card{position:relative; border-radius:20px; overflow:hidden; background:linear-gradient(180deg, #fff, #fff8); border:1px solid rgba(0,0,0,.06);
-      box-shadow:0 12px 30px rgba(0,0,0,.08); transform:rotate(var(--rot,0deg));
-      transition:transform .25s ease, box-shadow .25s ease}
-    .card:hover{transform:rotate(var(--rot,0deg)) translateY(-4px); box-shadow:0 16px 38px rgba(0,0,0,.12)}
-    .card__img{aspect-ratio:4/3; background:linear-gradient(120deg, var(--latte), var(--foam));
-      display:grid; place-items:center; color:var(--espresso); font-weight:700}
-    .card__cap{position:absolute; inset:auto 10px 10px 10px; padding:.6rem .8rem; border-radius:14px; background:rgba(255,255,255,.85); backdrop-filter: blur(8px); font-size:.95rem}
-    .span-3{grid-column:span 3} .span-4{grid-column:span 4} .span-5{grid-column:span 5} .span-6{grid-column:span 6} .row-2{grid-row:span 2}
+    /* Collage — enforce 12/4 grid (B.1) */
+    .collage{padding-block: clamp(var(--s-32), 8vw, var(--s-96))}
+    .collage h2{margin:0 0 var(--s-8)}
+    .collage p{max-width:60ch; opacity:.85; margin:0 0 var(--s-16)}
+    .grid{
+      margin-top: var(--s-16);
+      display:grid; grid-template-columns: repeat(12, 1fr); gap: var(--s-16);
+    }
+    .card{
+      position:relative; border-radius:20px; overflow:hidden; background:linear-gradient(180deg, #fff, #fff8);
+      border:1px solid rgba(0,0,0,.06); box-shadow:0 12px 24px rgba(0,0,0,.08);
+      transition:transform .2s ease, box-shadow .2s ease;
+    }
+    .card:hover{ transform:translateY(-4px); box-shadow:0 16px 28px rgba(0,0,0,.12) }
+    .card__img{aspect-ratio:4/3; display:grid; place-items:center; background:linear-gradient(120deg, var(--latte), var(--neutral)); color:var(--espresso); font-weight:700}
+    .card__cap{position:absolute; inset:auto var(--s-16) var(--s-16) var(--s-16); padding:8px 12px; border-radius:12px; background:rgba(255,255,255,.9); font-size:.95rem}
 
-    /* Meny */
-    .menu-section{padding-block: clamp(28px, 8vw, 90px); background:linear-gradient(180deg, transparent, rgba(200,183,166,.22));}
-    .menu-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; margin-top:18px}
-    .menu-card{border-radius:28px; border:1px solid rgba(0,0,0,.08); overflow:hidden; background:#fff; position:relative}
-    .menu-card::before{content:""; position:absolute; inset:-2px; border-radius:32px;
-      background:conic-gradient(from 180deg, transparent, rgba(163,107,63,.4), transparent 30%);
-      filter:blur(18px); opacity:.6; pointer-events:none}
-    .menu-card__inner{position:relative; padding:20px; z-index:1}
+    .span-3{grid-column:span 3} .span-4{grid-column:span 4} .span-5{grid-column:span 5} .span-6{grid-column:span 6}
+    .row-2{grid-row:span 2}
+
+    /* Menu section on secondary backdrop for 60/30/10 */
+    .menu-section{padding-block: clamp(var(--s-32), 8vw, var(--s-96)); background:linear-gradient(180deg, transparent, rgba(200,183,166,.18));}
+    .menu-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap: var(--s-16); margin-top: var(--s-16)}
+    .menu-card{border-radius:24px; border:1px solid rgba(0,0,0,.08); overflow:hidden; background:var(--secondary); position:relative}
+    .menu-card__inner{position:relative; padding: var(--s-24)}
     .menu-title{font-weight:700; color:var(--espresso)}
-    .menu-item{display:flex; justify-content:space-between; gap:12px; padding:10px 0; border-bottom:1px dashed rgba(0,0,0,.08)}
+    .menu-item{display:flex; justify-content:space-between; gap: var(--s-16); padding: var(--s-8) 0; border-bottom:1px dashed rgba(0,0,0,.08)}
     .menu-item:last-child{border-bottom:none}
     .v{display:inline-grid; place-items:center; width:22px; height:22px; border-radius:999px; border:1px solid rgba(0,0,0,.15); font-size:12px}
 
-    /* Besøk oss / kart (66% på desktop, 100% mobil) */
-    .visit{padding-block: clamp(28px, 8vw, 90px)}
+    /* Visit — map scaled to 66% on desktop for balance (B) */
+    .visit{padding-block: clamp(var(--s-32), 8vw, var(--s-96))}
     .mapframe{
-      border-radius:22px; overflow:hidden; box-shadow:0 16px 40px rgba(0,0,0,.10);
-      border:1px solid rgba(0,0,0,.08); background:#fff; width:100%;
+      border-radius: var(--radius); overflow:hidden; box-shadow:0 16px 32px rgba(0,0,0,.10);
+      border:1px solid rgba(0,0,0,.08); background:var(--secondary); width:100%;
     }
     .map{aspect-ratio:16/9; border:0; width:100%}
-    .mapbar{display:flex; justify-content:space-between; gap:10px; align-items:center; padding:10px 14px}
+    .mapbar{display:flex; justify-content:space-between; gap: var(--s-16); align-items:center; padding: var(--s-8) var(--s-16)}
 
-    footer .wrap{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap}
+    footer .wrap{display:flex; justify-content:space-between; align-items:center; gap: var(--s-16); flex-wrap:wrap; padding-block: var(--s-16)}
 
-    /* Motion */
+    /* Reveal fallback kept as-is */
     @media (prefers-reduced-motion: no-preference){
       .reveal{opacity:0; transform:translateY(14px); animation:reveal .7s ease both; animation-timeline:view(); animation-range:entry 10% cover 30%}
       @keyframes reveal{to{opacity:1; transform:none}}
     }
 
-    /* DESKTOP finjusteringer (punkt 4) */
+    /* Desktop tweaks (C: alignment, A: sizes) */
     @media (min-width: 900px){
-      .hero .wrap{
-        padding-block: clamp(24px, 6vw, 72px);  /* løft seksjonen opp */
-        align-items: start;                      /* align topp tekst = topp bilde */
-      }
-      .hero h1{
-        font-size: clamp(34px, 5.8vw, 72px);     /* ett hakk mindre */
-        margin-top: 0;
-      }
-      .hero__photo{
-        width: min(468px, 100%);                 /* ~10% mindre enn 520px */
-        margin-top: 0;
-      }
-      .hero__card{ grid-column: 2; }             /* info-kort i høyre kolonne */
+      .hero__card{ grid-column: 2; }
       .spot{ grid-template-columns:1.1fr .9fr; }
-      .mapframe{ width:66%; margin-inline:auto; }/* ~1/3 mindre enn full bredde */
+      .mapframe{ width:66%; margin-inline:auto; }
     }
 
-    /* MOBIL: (punkt 2) tekst flyter rundt bildet + bunn justert til CTA */
+    /* Mobile rules — 4-column mental model & float hero (B.1, A) */
     @media (max-width: 900px){
       .hero .wrap{ grid-template-columns:1fr; }
-      .intro{ padding-right: 0; position:relative; }
-      .hero__cta{ clear: both; margin-top: 12px; }
+      .intro{ position:relative; }
+      .hero__cta{ clear: both; margin-top: var(--s-8); }
 
-      /* null ut tidligere absolutte posisjonering */
+      /* reset any absolute hero img, then enable float+shape for wrap-around */
       .hero__photo{ position: static !important; right:auto !important; top:auto !important; z-index:auto !important; transform:none; }
-
-      /* flytende variant for pen tekstflyt */
       .hero__photo.is-float{
         float: right;
         width: 40vw; max-width: 220px;
         border-radius:16px;
         transform: rotate(-3.5deg);
-        margin: 0 0 8px 12px; /* luft til tekst */
+        margin: 0 0 var(--s-8) var(--s-16);
         shape-outside: ellipse(50% 45% at 50% 50%);
         -webkit-shape-outside: ellipse(50% 45% at 50% 50%);
-        box-shadow:0 14px 30px rgba(0,0,0,.20);
+        box-shadow:0 14px 28px rgba(0,0,0,.20);
       }
 
       .spot{ grid-template-columns:1fr; }
       .spot__art{ order:-1; aspect-ratio:16/9; }
-      .grid{grid-template-columns:repeat(6, 1fr)}
+
+      /* Collage “mobile grid” feels like 4 cols via card width + scroll */
+      .grid{ display:flex; overflow-x:auto; gap: var(--s-16); padding: 4px 6px var(--s-16); scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
+      .grid::-webkit-scrollbar{display:none}
+      .card{ flex:0 0 86%; scroll-snap-align:start; }
+      .card__img{ aspect-ratio: 16 / 10; }
+      .card__cap{ position:static; background:transparent; margin: var(--s-8) var(--s-8) 2px; padding:0; }
       .menu-grid{grid-template-columns:1fr}
     }
 
-    @media (max-width: 600px){
-      .grid{ display:flex; overflow-x:auto; gap:14px; padding:4px 6px 12px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
-      .grid::-webkit-scrollbar{display:none}
-      .card{ flex:0 0 86%; scroll-snap-align:start; transform:none !important; }
-      .card__img{ aspect-ratio: 16 / 10; }
-      .card__cap{ position:static; background:transparent; backdrop-filter:none; margin:8px 6px 2px; padding:0; }
-    }
-
-    /* Slim info card (punkt 3 – når flyttet under collage) */
+    /* Slim info card style (placed under collage) */
     .hero__card.hero__card--slim{
       grid-column: 1 / -1;
       max-width: 760px;
-      margin: 10px auto 0;
-      padding: 12px 14px;
+      margin: var(--s-8) auto 0;
+      padding: var(--s-16) var(--s-16);
       border-radius:16px;
-      box-shadow: 0 10px 26px rgba(0,0,0,.08);
+      box-shadow: 0 10px 22px rgba(0,0,0,.08);
     }
     .hero__card.hero__card--slim .kv{ font-size: 15px; }
   </style>
@@ -254,26 +302,24 @@
   <section class="hero" id="hjem">
     <div class="hero__bg" aria-hidden="true"></div>
     <div class="wrap">
-      <!-- Venstre: intro -->
       <div class="intro">
-        <h1 class="h" style="margin-top:4px">Velkommen til Macé Cafe</h1>
+        <h1 class="h">Velkommen til Macé Cafe</h1>
         <p>Kaffe, lunsj og noe søtt – midt i Molde sentrum. Stikk innom for dagens middag eller finn et rolig hjørne inne.</p>
         <div class="hero__cta">
-          <a class="btn" href="#meny">Se meny</a>
-          <a class="btn btn--ghost" href="https://maps.google.com/?q=Storgata+42,+6413+Molde" target="_blank" rel="noopener">Finn veien</a>
+          <a class="btn btn--ghost" href="#meny">Se meny</a>
+          <a class="btn" href="https://maps.google.com/?q=Storgata+42,+6413+Molde" target="_blank" rel="noopener">Finn veien</a>
         </div>
       </div>
 
-      <!-- Høyre: foto (dynamisk via JSON) -->
       <figure class="hero__photo reveal" id="hero-photo" style="display:none">
         <img id="hero-img" src="" alt="">
       </figure>
 
-      <!-- SPOTLIGHT: Dagens -->
+      <!-- SPOTLIGHT -->
       <section class="spot reveal" id="spotlight" style="display:none">
         <div class="spot__body">
           <div class="spot__eyebrow">Dagens</div>
-          <h3 class="spot__title" id="spot-title">Dagens middag</h3>
+          <h3 class="spot__title h" id="spot-title">Dagens middag</h3>
           <p class="spot__subtitle" id="spot-sub">Oppdateres daglig</p>
           <ul class="spot__list" id="spot-list"></ul>
         </div>
@@ -284,20 +330,18 @@
 
       <!-- Info-kort (flyttes under collage via JS) -->
       <aside class="hero__card reveal" aria-label="Nøkkelinformasjon">
-        <div class="hero__card-inner">
-          <dl class="kv">
-            <dt>Adresse</dt><dd>Storgata 42, 6413 Molde</dd>
-            <dt>Telefon</dt><dd><a href="tel:+4791176800">+47 911 76 800</a></dd>
-            <dt>Åpent</dt><dd id="hours-line">Man–Fre 09:00 – 18:00 · Lør 09:00 – 17:00</dd>
-            <dt>Sosialt</dt><dd><a href="https://www.instagram.com/macecafemolde/" target="_blank" rel="noopener">@macecafemolde</a></dd>
-          </dl>
-        </div>
+        <dl class="kv">
+          <dt>Adresse</dt><dd>Storgata 42, 6413 Molde</dd>
+          <dt>Telefon</dt><dd><a href="tel:+4791176800">+47 911 76 800</a></dd>
+          <dt>Åpent</dt><dd id="hours-line">Man–Fre 09:00 – 18:00 · Lør 09:00 – 17:00</dd>
+          <dt>Sosialt</dt><dd><a href="https://www.instagram.com/macecafemolde/" target="_blank" rel="noopener">@macecafemolde</a></dd>
+        </dl>
       </aside>
     </div>
   </section>
 
   <section class="collage wrap" aria-label="Smakebiter">
-    <div style="display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap">
+    <div style="display:flex; align-items:flex-end; gap: var(--s-16); flex-wrap:wrap">
       <h2 class="h">Smakebiter fra disken</h2>
       <span class="chip">Sveip for flere</span>
     </div>
@@ -309,38 +353,31 @@
 
   <section id="meny" class="menu-section" aria-label="Meny">
     <div class="wrap">
-      <h2 class="h" style="margin:0">Meny (utvalg)</h2>
-      <p style="opacity:.85; margin:.3rem 0 1rem">Dette styres fra adminpanelet.</p>
+      <h2 class="h" style="margin:0 0 var(--s-8)">Meny (utvalg)</h2>
+      <p style="opacity:.85; margin:0 0 var(--s-16)">Dette styres fra adminpanelet.</p>
 
       <div class="menu-grid">
-        <div class="menu-card reveal">
-          <div class="menu-card__inner" id="menu-hot"><div class="menu-title">Kaffe & varme drikker</div></div>
-        </div>
-        <div class="menu-card reveal">
-          <div class="menu-card__inner" id="menu-lunch"><div class="menu-title">Frokost & lunsj</div></div>
-        </div>
-        <div class="menu-card reveal">
-          <div class="menu-card__inner" id="menu-sweet"><div class="menu-title">Søtt & kaldt</div></div>
-        </div>
+        <div class="menu-card reveal"><div class="menu-card__inner" id="menu-hot"><div class="menu-title">Kaffe & varme drikker</div></div></div>
+        <div class="menu-card reveal"><div class="menu-card__inner" id="menu-lunch"><div class="menu-title">Frokost & lunsj</div></div></div>
+        <div class="menu-card reveal"><div class="menu-card__inner" id="menu-sweet"><div class="menu-title">Søtt & kaldt</div></div></div>
       </div>
 
-      <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap">
-        <a class="btn btn--ghost" href="https://maps.google.com/?q=Storgata+42,+6413+Molde" target="_blank" rel="noopener">Finn veien</a>
+      <div style="margin-top: var(--s-16); display:flex; gap: var(--s-16); flex-wrap:wrap">
+        <a class="btn btn--ghost" href="#hjem">Til toppen</a>
+        <a class="btn" target="_blank" rel="noopener" href="https://maps.google.com/?q=Storgata+42,+6413+Molde">Veibeskrivelse</a>
       </div>
     </div>
   </section>
 
   <section class="visit" aria-label="Besøk oss">
     <div class="wrap">
-      <h2 class="h" style="margin:0 0 8px">Besøk oss</h2>
+      <h2 class="h" style="margin:0 0 var(--s-8)">Besøk oss</h2>
       <p>Finn oss midt i Storgata – uteservering mot torget når været tillater det.</p>
-
-      <div class="mapframe reveal" style="margin-top:16px">
-        <iframe class="map" title="Kart Storgata 42 Molde" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-          src="https://www.google.com/maps?q=Storgata%2042%2C%206413%20Molde&output=embed"></iframe>
+      <div class="mapframe reveal" style="margin-top: var(--s-16)">
+        <iframe class="map" title="Kart Storgata 42 Molde" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Storgata%2042%2C%206413%20Molde&output=embed"></iframe>
         <div class="mapbar">
           <span>Storgata 42, 6413 Molde</span>
-          <a class="btn" style="padding:.55rem .9rem" target="_blank" rel="noopener" href="https://maps.google.com/?q=Storgata+42,+6413+Molde">Veibeskrivelse</a>
+          <a class="btn" style="padding: 10px 14px" target="_blank" rel="noopener" href="https://maps.google.com/?q=Storgata+42,+6413+Molde">Veibeskrivelse</a>
         </div>
       </div>
     </div>
@@ -349,7 +386,7 @@
   <footer>
     <div class="wrap">
       <div>&copy; <span id="year"></span> Macé Cafe · Org.nr. 933 813 142</div>
-      <div style="opacity:.8">Designsystem: Espresso · Latte · Skum</div>
+      <div style="opacity:.8">Designsystem: 60/30/10 · 12/4 kolonner · 8-punkt spacing</div>
     </div>
   </footer>
 
@@ -357,7 +394,7 @@
     // Årstall
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Reveal fallback
+    // Reveal fallback (unchanged)
     if (!CSS.supports('animation-timeline: view()')){
       const io = new IntersectionObserver((entries)=>{
         entries.forEach(e=>{ if(e.isIntersecting){ e.target.style.transition = 'opacity .6s ease, transform .6s ease'; e.target.style.opacity = 1; e.target.style.transform = 'none'; io.unobserve(e.target)} })
@@ -365,7 +402,7 @@
       document.querySelectorAll('.reveal').forEach(el=>{ el.style.opacity = 0; el.style.transform = 'translateY(14px)'; io.observe(el) })
     }
 
-    /* punkt 2: funksjon for mobil-flyt og bunn-justering = CTA */
+    /* Mobile hero float & bottom-align with CTA (kept) */
     function floatHeroOnMobile(){
       var fig  = document.getElementById('hero-photo');
       var img  = document.getElementById('hero-img');
@@ -375,9 +412,7 @@
       if (!window.matchMedia('(max-width: 900px)').matches) return;
 
       var firstP = intro.querySelector('p');
-      if (firstP && fig.parentElement !== intro){
-        intro.insertBefore(fig, firstP);
-      }
+      if (firstP && fig.parentElement !== intro){ intro.insertBefore(fig, firstP); }
       fig.classList.add('is-float');
       fig.style.display = 'block';
 
@@ -394,7 +429,7 @@
       window.addEventListener('resize', function(){ if (fig.classList.contains('is-float')) setTimeout(align, 60); });
     }
 
-    /* punkt 3: flytt info-kort under collage og gjør det slankt */
+    /* Move info card under collage & slim it (as before) */
     document.addEventListener('DOMContentLoaded', function(){
       var info   = document.querySelector('.hero__card');
       var collage= document.querySelector('.collage');
@@ -405,7 +440,7 @@
     });
   </script>
 
-  <!-- Hent data fra JSON -->
+  <!-- Data fetch / bind (unchanged logic) -->
   <script>
   (async () => {
     const q = (s) => document.querySelector(s);
@@ -427,7 +462,6 @@
         img.src = home.hero_image;
         img.alt = home.hero_image_alt || "Macé Cafe";
         fig.style.display = 'block';
-        // mobil-flyt aktiveres etter at bildet er synlig
         floatHeroOnMobile();
       }
 
@@ -471,13 +505,13 @@
       fillMenu('menu-lunch', meny.lunch);
       fillMenu('menu-sweet', meny.dessert);
 
-      // Åpningstider-linje (i slank info-blokk)
+      // Åpningstider-linje
       const hoursLine = q('#hours-line');
       if (hoursLine && hours.weekdays_open && hours.weekdays_close && hours.saturday_open && hours.saturday_close){
         hoursLine.textContent = `Man–Fre ${hours.weekdays_open} – ${hours.weekdays_close} · Lør ${hours.saturday_open} – ${hours.saturday_close}`;
       }
 
-      // Smakebiter fra home.json
+      // Smakebiter
       const grid = q('#collage-grid');
       grid.innerHTML = '';
       const items = Array.isArray(home.collage) ? home.collage : [];
@@ -487,7 +521,7 @@
         items.forEach((it, idx)=>{
           const card = document.createElement('article');
           card.className = `card ${spans[idx % spans.length]}`; card.setAttribute('role','listitem');
-          card.style.setProperty('--rot', rots[idx % rots.length] + 'deg');
+          card.style.setProperty('--rot', (rots[idx % rots.length] || 0) + 'deg'); /* safe default */
           const img = document.createElement('div'); img.className='card__img';
           if (it.image){
             const tag = document.createElement('img'); tag.src = it.image; tag.alt = it.title || 'Smakebit'; tag.loading='lazy';
@@ -507,7 +541,7 @@
   })();
   </script>
 
-  <!-- Strukturert data -->
+  <!-- SEO schema unchanged -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -528,7 +562,6 @@
     ],
     "servesCuisine": ["Coffee","Cafe","Bakery"],
     "menu": "https://macecafe.no/#meny",
-    "image": "https://macecafe.no/og-image.jpg",
     "priceRange": "NOK"
   }
   </script>
