@@ -1,0 +1,85 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "assets/uploads"
+public_folder: "/assets/uploads"
+
+collections:
+  - name: "forside"
+    label: "Forside"
+    files:
+      - file: "site_data/home.json"
+        label: "Forsideinnhold"
+        name: "home"
+        fields:
+          - { label: "Velkomstbilde", name: "hero_image", widget: "image", required: false }
+          - { label: "Alt-tekst for velkomstbilde", name: "hero_image_alt", widget: "string", required: false }
+          - label: "Smakebiter (collage)"
+            name: "collage"
+            widget: "list"
+            summary: "{{fields.title}}"
+            fields:
+              - { label: "Bilde", name: "image", widget: "image", required: false }
+              - { label: "Tittel", name: "title", widget: "string", required: false }
+              - { label: "Bildetekst", name: "caption", widget: "string", required: false }
+
+  - name: "meny"
+    label: "Meny"
+    files:
+      - file: "site_data/meny.json"
+        label: "Kafémeny"
+        name: "meny"
+        fields:
+          - label: "Kaffe & varme drikker"
+            name: "hotdrinks"
+            widget: "list"
+            fields:
+              - { label: "Navn", name: "title", widget: "string" }
+              - { label: "Pris", name: "price", widget: "string", required: false }
+              - { label: "Plantebasert", name: "vegan", widget: "boolean", required: false }
+          - label: "Frokost & lunsj"
+            name: "lunch"
+            widget: "list"
+            fields:
+              - { label: "Navn", name: "title", widget: "string" }
+              - { label: "Pris", name: "price", widget: "string", required: false }
+              - { label: "Plantebasert", name: "vegan", widget: "boolean", required: false }
+          - label: "Søtt & kaldt"
+            name: "dessert"
+            widget: "list"
+            fields:
+              - { label: "Navn", name: "title", widget: "string" }
+              - { label: "Pris", name: "price", widget: "string", required: false }
+              - { label: "Plantebasert", name: "vegan", widget: "boolean", required: false }
+
+  - name: "aapningstider"
+    label: "Åpningstider"
+    files:
+      - file: "site_data/hours.json"
+        label: "Åpningstider"
+        name: "hours"
+        fields:
+          - { label: "Hverdager – åpner",   name: "weekdays_open",  widget: "string", default: "09:00" }
+          - { label: "Hverdager – stenger", name: "weekdays_close", widget: "string", default: "18:00" }
+          - { label: "Lørdag – åpner",      name: "saturday_open",  widget: "string", default: "09:00" }
+          - { label: "Lørdag – stenger",    name: "saturday_close", widget: "string", default: "17:00" }
+          - { label: "Notis (valgfri)",     name: "note",           widget: "string", required: false }
+
+  - name: "dagens"
+    label: "Dagens middag"
+    files:
+      - file: "site_data/dagens.json"
+        label: "Dagens middag"
+        name: "dagens"
+        fields:
+          - { label: "Tittel",     name: "title",    widget: "string",  default: "Dagens middag" }
+          - { label: "Undertekst", name: "subtitle", widget: "string",  required: false }
+          - { label: "Bilde",      name: "image",    widget: "image",   required: false }
+          - label: "Retter"
+            name: "items"
+            widget: "list"
+            fields:
+              - { label: "Navn", name: "title", widget: "string" }
+              - { label: "Pris", name: "price", widget: "string", required: false }
+          - { label: "Oppdatert",  name: "updated",  widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, required: false }
