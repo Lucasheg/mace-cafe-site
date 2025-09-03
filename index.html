@@ -92,7 +92,7 @@
     .hero .wrap{
       display:grid; grid-template-columns:1.1fr .9fr; align-items:start;
       gap: var(--s-32);
-      /* ⬆ tiny extra space under header as requested */
+      /* small extra space under header */
       padding-block: clamp(40px, 7vw, 88px);
     }
     .hero p{max-width:52ch; opacity:.95; margin:0 0 var(--s-16)}
@@ -169,29 +169,50 @@
       .mapframe{ width:66%; margin-inline:auto; }
     }
 
-    /* Mobile: float hero image, bigger size, soft section edge */
+    /* ===== Mobile (fixed hero edge + larger image + real text wrap) ===== */
     @media (max-width: 900px){
-      .hero{ border-bottom-left-radius:16px; border-bottom-right-radius:16px; }
+      /* Soft, organic section edge */
+      .hero{
+        position:relative;
+        border-bottom-left-radius:16px;
+        border-bottom-right-radius:16px;
+        overflow:hidden;
+      }
+      .hero::after{
+        content:"";
+        position:absolute; left:0; right:0; bottom:-1px; height:56px;
+        background: linear-gradient(180deg, rgba(243,238,233,0) 0%, var(--neutral) 90%);
+        pointer-events:none;
+      }
+
       .hero .wrap{ grid-template-columns:1fr; }
       .intro{ position:relative; }
       .hero__cta{ clear: both; margin-top: var(--s-8); }
+
       .hero__photo{ position: static !important; right:auto !important; top:auto !important; z-index:auto !important; transform:none; }
       .hero__photo.is-float{
         float:right;
-        width:46vw; max-width:260px;                 /* a bit larger */
+        width:50vw; max-width:280px;                 /* larger */
         border-radius:16px; transform:rotate(-3.5deg);
         margin:0 0 var(--s-8) var(--s-16);
         shape-outside: ellipse(50% 45% at 50% 50%);
         -webkit-shape-outside: ellipse(50% 45% at 50% 50%);
         box-shadow:0 14px 28px rgba(0,0,0,.20);
       }
+
       .spot{ grid-template-columns:1fr; }
       .spot__art{ order:-1; aspect-ratio:16/9; }
-      .grid{ display:flex; overflow-x:auto; gap:var(--s-16); padding:4px 6px var(--s-16); scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
+
+      .grid{
+        display:flex; overflow-x:auto; gap:var(--s-16);
+        padding:4px 6px var(--s-16);
+        scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
+      }
       .grid::-webkit-scrollbar{display:none}
       .card{ flex:0 0 86%; scroll-snap-align:start; }
       .card__img{ aspect-ratio: 16 / 10; }
       .card__cap{ position:static; background:transparent; margin: var(--s-8) var(--s-8) 2px; padding:0; }
+
       .menu-grid{grid-template-columns:1fr}
     }
 
@@ -318,7 +339,7 @@
       document.querySelectorAll('.reveal').forEach(el=>{ el.style.opacity=0; el.style.transform='translateY(14px)'; io.observe(el) })
     }
 
-    /* Mobile hero: one-shot alignment (no infinite stretch) */
+    /* Mobile hero: one-shot alignment (prevents infinite stretch) */
     function floatHeroOnMobile(){
       var fig=document.getElementById('hero-photo'), img=document.getElementById('hero-img'),
           intro=document.querySelector('.intro'), cta=document.querySelector('.hero__cta');
