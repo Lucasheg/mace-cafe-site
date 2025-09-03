@@ -16,17 +16,17 @@
         #nc-root, .css-1, .nc-root { padding:0 !important; }
       }
     </style>
-    <!-- Identity present so CMS can auth via Git Gateway -->
+    <!-- Identity so CMS can auth via Git Gateway -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
     <div id="boot" class="loading">
       <h1 style="margin:.2rem 0 .4rem; font-size:20px">Laster editor …</h1>
-      <p>Hvis dette står her lenge, sjekker vi en reserve-CDN automatisk.</p>
+      <p>Hvis dette står her lenge, prøver vi flere kilder automatisk.</p>
     </div>
 
     <script>
-      // Deep-link to a collection or file-entry via query param
+      /* Deep-link to a collection or single entry */
       (function(){
         const p = new URLSearchParams(location.search);
         const col = p.get('collection');
@@ -42,8 +42,8 @@
         const boot = document.getElementById('boot');
         if(!boot) return;
         boot.innerHTML = '<h1 style="margin:.2rem 0 .4rem; font-size:20px" class="err">Kunne ikke laste editor</h1>'
-          + '<p>Vi klarte ikke å laste Netlify CMS fra flere kilder (unpkg/jsDelivr).</p>'
-          + '<p>Last siden på nytt, eller prøv igjen senere.</p>';
+          + '<p>Vi klarte ikke å laste Netlify/Decap CMS fra noen kilder (unpkg, jsDelivr, cdnjs, esm.sh).</p>'
+          + '<p>Prøv å oppdatere siden, eller test på et annet nettverk.</p>';
       }
 
       function initIdentity(){
@@ -54,27 +54,41 @@
         });
       }
 
-      function loadCMSfrom(src, next){
-        var s = document.createElement('script');
-        s.src = src;
-        s.onload = function(){
-          // CMS auto-initializes by reading /admin/config.yml
-          var boot = document.getElementById('boot');
-          if (boot) boot.remove();
-        };
-        s.onerror = function(){
-          if (next) next();
-          else mountError();
-        };
+      function afterLoad(){
+        const boot = document.getElementById('boot');
+        if (boot) boot.remove();
+      }
+
+      function loadScript(src, onok, onfail){
+        const s = document.createElement('script');
+        s.src = src; s.async = true; s.onload = onok; s.onerror = onfail;
         document.head.appendChild(s);
       }
 
-      // Try unpkg, then jsDelivr
+      /* Try multiple providers (Netlify CMS app and Decap CMS) */
+      const sources = [
+        'https://unpkg.com/netlify-cms-app@^2/dist/netlify-cms.js',
+        'https://cdn.jsdelivr.net/npm/netlify-cms-app@^2/dist/netlify-cms.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/decap-cms/3.1.9/decap-cms.min.js',
+        'https://esm.sh/decap-cms@^3?bundle'
+      ];
+
+      function tryNext(i){
+        if (i >= sources.length){ mountError(); return; }
+        loadScript(sources[i], () => {
+          /* Give the bundle a tick to expose the global */
+          setTimeout(() => {
+            if (window.CMS || window.DecapCms){
+              afterLoad(); /* CMS auto-reads /admin/config.yml */
+            } else {
+              tryNext(i+1);
+            }
+          }, 60);
+        }, () => tryNext(i+1));
+      }
+
       initIdentity();
-      loadCMSfrom(
-        'https://unpkg.com/netlify-cms-app/dist/netlify-cms.js',
-        function(){ loadCMSfrom('https://cdn.jsdelivr.net/npm/netlify-cms-app@^2/dist/netlify-cms.js'); }
-      );
+      tryNext(0);
     </script>
   </body>
 </html>
