@@ -22,7 +22,7 @@
   <body>
     <div id="boot" class="loading">
       <h1 style="margin:.2rem 0 .4rem; font-size:20px">Laster editor …</h1>
-      <p>Hvis dette står her lenge, prøver vi flere kilder automatisk.</p>
+      <p>Editor lastes nå fra <b>ditt eget nettsted</b>. Hvis dette står lenge, ser du en feilmelding.</p>
     </div>
 
     <script>
@@ -38,14 +38,6 @@
         }
       })();
 
-      function mountError(){
-        const boot = document.getElementById('boot');
-        if(!boot) return;
-        boot.innerHTML = '<h1 style="margin:.2rem 0 .4rem; font-size:20px" class="err">Kunne ikke laste editor</h1>'
-          + '<p>Vi klarte ikke å laste Netlify/Decap CMS fra noen kilder (unpkg, jsDelivr, cdnjs, esm.sh).</p>'
-          + '<p>Prøv å oppdatere siden, eller test på et annet nettverk.</p>';
-      }
-
       function initIdentity(){
         if (!window.netlifyIdentity) return;
         try { window.netlifyIdentity.init({}); } catch(e){}
@@ -59,36 +51,35 @@
         if (boot) boot.remove();
       }
 
+      function mountError(msg){
+        const boot = document.getElementById('boot');
+        if(!boot) return;
+        boot.innerHTML = '<h1 style="margin:.2rem 0 .4rem; font-size:20px" class="err">Kunne ikke laste editor</h1>'
+          + '<p>' + (msg || 'Lokale CMS-filer mangler.') + '</p>'
+          + '<p>Tips: Sjekk at Netlify bygget filer til <code>admin/vendor/</code>. '
+          + 'Se Build logs → run <code>fetch-cms.sh</code>.</p>';
+      }
+
       function loadScript(src, onok, onfail){
-        const s = document.createElement('script');
+        var s = document.createElement('script');
         s.src = src; s.async = true; s.onload = onok; s.onerror = onfail;
         document.head.appendChild(s);
       }
 
-      /* Try multiple providers (Netlify CMS app and Decap CMS) */
-      const sources = [
-        'https://unpkg.com/netlify-cms-app@^2/dist/netlify-cms.js',
-        'https://cdn.jsdelivr.net/npm/netlify-cms-app@^2/dist/netlify-cms.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/decap-cms/3.1.9/decap-cms.min.js',
-        'https://esm.sh/decap-cms@^3?bundle'
-      ];
-
-      function tryNext(i){
-        if (i >= sources.length){ mountError(); return; }
-        loadScript(sources[i], () => {
-          /* Give the bundle a tick to expose the global */
-          setTimeout(() => {
-            if (window.CMS || window.DecapCms){
-              afterLoad(); /* CMS auto-reads /admin/config.yml */
-            } else {
-              tryNext(i+1);
-            }
-          }, 60);
-        }, () => tryNext(i+1));
-      }
-
       initIdentity();
-      tryNext(0);
+
+      // 1) Try local self-hosted bundles (no external CDNs)
+      loadScript('/admin/vendor/decap-cms.js', afterLoad, function(){
+        // 2) Local netlify-cms fallback (also self-hosted)
+        loadScript('/admin/vendor/netlify-cms.js', afterLoad, function(){
+          // 3) As a last resort, try external CDNs (in case local files are missing on first deploy)
+          loadScript('https://unpkg.com/decap-cms@^3/dist/decap-cms.js', afterLoad, function(){
+            loadScript('https://cdn.jsdelivr.net/npm/netlify-cms-app@^2/dist/netlify-cms.js', afterLoad, function(){
+              mountError('Verken lokale eller eksterne CMS-filer kunne lastes.');
+            });
+          });
+        });
+      });
     </script>
   </body>
 </html>
