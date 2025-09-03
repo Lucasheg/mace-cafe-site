@@ -390,55 +390,90 @@
     </div>
   </footer>
 
-  <script>
-    // Årstall
-    document.getElementById('year').textContent = new Date().getFullYear();
+ <script>
+  // Årstall
+  document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Reveal fallback (unchanged)
-    if (!CSS.supports('animation-timeline: view()')){
-      const io = new IntersectionObserver((entries)=>{
-        entries.forEach(e=>{ if(e.isIntersecting){ e.target.style.transition = 'opacity .6s ease, transform .6s ease'; e.target.style.opacity = 1; e.target.style.transform = 'none'; io.unobserve(e.target)} })
-      }, {threshold:.2});
-      document.querySelectorAll('.reveal').forEach(el=>{ el.style.opacity = 0; el.style.transform = 'translateY(14px)'; io.observe(el) })
-    }
-
-    /* Mobile hero float & bottom-align with CTA (kept) */
-    function floatHeroOnMobile(){
-      var fig  = document.getElementById('hero-photo');
-      var img  = document.getElementById('hero-img');
-      var intro= document.querySelector('.intro');
-      var cta  = document.querySelector('.hero__cta');
-      if (!fig || !img || !intro || !cta) return;
-      if (!window.matchMedia('(max-width: 900px)').matches) return;
-
-      var firstP = intro.querySelector('p');
-      if (firstP && fig.parentElement !== intro){ intro.insertBefore(fig, firstP); }
-      fig.classList.add('is-float');
-      fig.style.display = 'block';
-
-      function align(){
-        var introRect = intro.getBoundingClientRect();
-        var figRect   = fig.getBoundingClientRect();
-        var ctaRect   = cta.getBoundingClientRect();
-        var desiredBottom = (ctaRect.top - introRect.top) + ctaRect.height;
-        var desiredTop    = desiredBottom - figRect.height;
-        fig.style.marginTop = Math.max(0, desiredTop) + 'px';
-      }
-      if (!img.complete){ img.addEventListener('load', function(){ setTimeout(align, 30); }, {once:true}); }
-      else { setTimeout(align, 30); }
-      window.addEventListener('resize', function(){ if (fig.classList.contains('is-float')) setTimeout(align, 60); });
-    }
-
-    /* Move info card under collage & slim it (as before) */
-    document.addEventListener('DOMContentLoaded', function(){
-      var info   = document.querySelector('.hero__card');
-      var collage= document.querySelector('.collage');
-      if (info && collage){
-        collage.insertAdjacentElement('afterend', info);
-        info.classList.add('hero__card--slim');
-      }
+  // Reveal fallback (unchanged)
+  if (!CSS.supports('animation-timeline: view()')){
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          e.target.style.transition = 'opacity .6s ease, transform .6s ease';
+          e.target.style.opacity = 1; e.target.style.transform = 'none';
+          io.unobserve(e.target);
+        }
+      });
+    }, {threshold:.2});
+    document.querySelectorAll('.reveal').forEach(el=>{
+      el.style.opacity = 0; el.style.transform = 'translateY(14px)'; io.observe(el);
     });
-  </script>
+  }
+
+  /* Mobile hero: one-shot alignment to prevent scroll/resize feedback loops */
+  function floatHeroOnMobile(){
+    var fig  = document.getElementById('hero-photo');
+    var img  = document.getElementById('hero-img');
+    var intro= document.querySelector('.intro');
+    var cta  = document.querySelector('.hero__cta');
+    if (!fig || !img || !intro || !cta) return;
+
+    // Only on small screens
+    var mm = window.matchMedia('(max-width: 900px)');
+    if (!mm.matches) return;
+
+    // Move image before first paragraph so text can wrap nicely
+    var firstP = intro.querySelector('p');
+    if (firstP && fig.parentElement !== intro){
+      intro.insertBefore(fig, firstP);
+    }
+
+    // Enable float+shape
+    fig.classList.add('is-float');
+    fig.style.display = 'block';
+
+    function alignOnce(){
+      // Align bottom of image to bottom of CTA, but clamp the shift
+      var introRect = intro.getBoundingClientRect();
+      var figRect   = fig.getBoundingClientRect();
+      var ctaRect   = cta.getBoundingClientRect();
+
+      var desiredBottom = (ctaRect.top - introRect.top) + ctaRect.height;
+      var desiredTop    = desiredBottom - figRect.height;
+
+      // Clamp to avoid runaway growth due to mobile visual viewport resizes
+      var MAX_SHIFT = 64; // px (8*8 on the 8pt grid)
+      var clamped   = Math.max(0, Math.min(desiredTop, MAX_SHIFT));
+
+      // Snap to 8pt grid
+      clamped = Math.round(clamped / 8) * 8;
+
+      fig.style.marginTop = clamped + 'px';
+    }
+
+    // Run once after the image is ready
+    if (!img.complete){
+      img.addEventListener('load', function(){ requestAnimationFrame(alignOnce); }, { once:true });
+    } else {
+      requestAnimationFrame(alignOnce);
+    }
+
+    // Re-run only on orientation change (not every resize while scrolling)
+    window.addEventListener('orientationchange', function(){
+      setTimeout(alignOnce, 150);
+    });
+  }
+
+  /* Move info card under collage & slim it (as before) */
+  document.addEventListener('DOMContentLoaded', function(){
+    var info   = document.querySelector('.hero__card');
+    var collage= document.querySelector('.collage');
+    if (info && collage){
+      collage.insertAdjacentElement('afterend', info);
+      info.classList.add('hero__card--slim');
+    }
+  });
+</script>
 
   <!-- Data fetch / bind (unchanged logic) -->
   <script>
