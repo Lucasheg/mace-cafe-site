@@ -3,9 +3,9 @@
   "hero_image_alt": "",
   "collage": [
     {
-      "title": "Latte Art",
-      "image": "/assets/uploads/latte.jpg",
-      "caption": "Klassisk cappuccino med fløyelsmykt skum"
+      "title": "Sandwich",
+      "image": "/assets/uploads/img_6110.jpeg",
+      "caption": "Subsandwich Med Biff og Bearnaise"
     },
     {
       "title": "Frokost",
@@ -13,19 +13,19 @@
       "caption": "Surdeigsbrød, egg & grønt"
     },
     {
-      "title": "Kake",
-      "image": "/assets/uploads/kake.jpg",
-      "caption": "Brownie & pecan pie"
+      "title": "Bakst",
+      "image": "/assets/uploads/img_6111.jpeg",
+      "caption": "Vafler"
     },
     {
       "title": "Lunsj",
-      "image": "/assets/uploads/lunsj.jpg",
-      "caption": "Dagens – spør i kassen"
+      "image": "/assets/uploads/img_6112.jpeg",
+      "caption": "Rekesandwich"
     },
     {
-      "title": "Iskaffe",
-      "image": "/assets/uploads/iskaffe.jpg",
-      "caption": "Avkjølende glass med espresso & melk"
+      "title": "Toast",
+      "image": "/assets/uploads/img_6113.jpeg",
+      "caption": "Rosted Beef toast"
     }
   ]
 }
