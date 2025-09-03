@@ -71,17 +71,17 @@
     }
     .nav .wrap{
       display:flex; align-items:center; justify-content:space-between; gap:var(--s-16);
-      min-height:64px; /* ✅ keeps content vertically centered */
+      min-height:64px;
       padding-block: var(--s-16);
     }
     .brand .name{
-      display:flex; align-items:center; /* ✅ vertical centering */
+      display:flex; align-items:center;
       font-family:"Playfair Display",serif; font-weight:800; letter-spacing:.02em;
       font-size: clamp(24px, 3.6vw, 40px); line-height:1;
     }
     .menu{display:flex; gap:var(--s-16); align-items:center}
     .menu a{
-      display:flex; align-items:center; /* ✅ vertical centering */
+      display:flex; align-items:center;
       padding:2px 0; position:relative; font-weight:600; opacity:.95; line-height:1;
     }
     .menu a::after{content:""; position:absolute; left:0; bottom:-4px; height:2px; width:0; background:var(--espresso); transition:width .22s}
@@ -176,18 +176,29 @@
       .mapframe{ width:66%; margin-inline:auto; }
     }
 
-    /* ===== Mobile fixes (no box, better wrap, editor-friendly) ===== */
-    @media (max-width: 900px){
-      /* Completely remove any hero background / overlays to kill the rectangular tint */
+    /* ===== Mobile FIX (up to 1024px) — remove any possible box/tint edges ===== */
+    @media (max-width: 1024px){
+      /* Nuke ALL hero decorations on mobile/phablet */
       .hero__bg{ display:none !important; }
       .hero::before, .hero::after{ display:none !important; content:none !important; }
-      .hero, .hero .wrap, .intro{ background:transparent !important; box-shadow:none !important; }
+      .hero, .hero .wrap, .intro { background:transparent !important; box-shadow:none !important; border:none !important; }
+      /* Ensure no gradient inside the photo either */
+      .hero__photo::after{ display:none !important; }
+      /* Keep overflow visible so nothing hard-clips */
+      .hero{ overflow:visible !important; }
 
       .hero .wrap{ grid-template-columns:1fr; }
       .intro{ position:relative; }
+      /* ✅ Clearfix so float doesn’t stretch the section while scrolling */
+      .intro::after{ content:""; display:block; clear:both; }
+
       .hero__cta{ clear: both; margin-top: var(--s-8); }
 
-      .hero__photo{ position: static !important; right:auto !important; top:auto !important; z-index:auto !important; transform:none; background:transparent !important; }
+      /* Float image with real text wrap, no background */
+      .hero__photo{
+        position: static !important; right:auto !important; top:auto !important; z-index:auto !important; transform:none !important;
+        background:transparent !important;
+      }
       .hero__photo.is-float{
         float:right;
         width:50vw; max-width:280px;
@@ -337,12 +348,12 @@
       document.querySelectorAll('.reveal').forEach(el=>{ el.style.opacity=0; el.style.transform='translateY(14px)'; io.observe(el) })
     }
 
-    /* Mobile hero: one-shot alignment (prevents infinite stretch) */
+    /* Mobile hero: one-shot alignment */
     function floatHeroOnMobile(){
       var fig=document.getElementById('hero-photo'), img=document.getElementById('hero-img'),
           intro=document.querySelector('.intro'), cta=document.querySelector('.hero__cta');
       if(!fig||!img||!intro||!cta) return;
-      var mm=window.matchMedia('(max-width: 900px)'); if(!mm.matches) return;
+      var mm=window.matchMedia('(max-width: 1024px)'); if(!mm.matches) return;
 
       var firstP=intro.querySelector('p'); if(firstP && fig.parentElement!==intro){ intro.insertBefore(fig, firstP); }
       fig.classList.add('is-float'); fig.style.display='block';
