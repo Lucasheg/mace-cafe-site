@@ -2,203 +2,49 @@
 <html lang="no">
   <head>
     <meta charset="utf-8" />
-    <title>Macé Cafe — Rediger innhold</title>
+    <title>Macé Cafe — Editor</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
     <style>
-      :root{ --border:#e7e7e7; --fg:#111; }
-      html,body{ height:100% } body{ margin:0; font-family:system-ui,-apple-system,Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--fg) }
-      #back{ position:fixed; top:12px; left:12px; z-index:2147483000; padding:.5rem .7rem; border-radius:10px; background:#fff; border:1px solid var(--border); box-shadow:0 6px 18px rgba(0,0,0,.12); text-decoration:none; color:#111; font-weight:600 }
-      .msg{ position:fixed; inset:auto 12px 12px 12px; background:#fff; border:1px solid var(--border); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.12); padding:10px 12px; z-index:2000; max-width:640px }
-      .hide{ display:none }
-      .center{ position:fixed; inset:0; display:grid; place-items:center; }
-      .muted{ opacity:.7 }
+      /* Mobile-friendly base for the embedded CMS UI */
+      html,body{height:100%}
+      body{ margin:0; background:#fafafa; color:#111; font:16px/1.5 Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif }
+      /* Make form controls comfy on small screens */
+      @media (max-width: 900px){
+        /* CMS containers vary; these safe rules keep controls usable */
+        input, select, textarea { font-size:16px; } /* prevents iOS zoom */
+        .nc-appHeader{ position:sticky; top:0; z-index:5; }
+        /* let the main area use full width */
+        #nc-root, .css-1, .nc-root { padding:0 !important; }
+      }
     </style>
-
-    <!-- Identity først -->
+    <!-- Identity present so CMS can auth via Git Gateway -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-
-    <!-- MANUAL INIT – vi styrer config i JS -->
-    <script>window.CMS_MANUAL_INIT = true;</script>
-
-    <!-- Decap CMS: vi prøver flere kilder i rekkefølge -->
+    <!-- Netlify CMS -->
+    <script src="https://unpkg.com/netlify-cms-app/dist/netlify-cms.js"></script>
     <script>
-      (async function loadDecap(){
-        const urls = [
-          'https://cdn.jsdelivr.net/npm/decap-cms@^3.0.0/dist/decap-cms.js',
-          'https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js',
-          'https://raw.githubusercontent.com/decaporg/decap-cms/main/packages/decap-cms/dist/decap-cms.js'
-        ];
-        for(const u of urls){
-          try{
-            await new Promise((ok, err)=>{
-              const s = document.createElement('script'); s.src = u; s.onload = ok; s.onerror = err; document.head.appendChild(s);
-            });
-            return;
-          }catch(e){ /* prøv neste */ }
+      // Deep-link to a collection or file-entry via query param
+      (function(){
+        const p = new URLSearchParams(location.search);
+        const col = p.get('collection');
+        /* Map file collections to their single entry slugs (adjust if your config.yml uses different 'name:' fields) */
+        const entryByCol = { dagens:'dagens', aapningstider:'hours', meny:'meny', forside:'home' };
+        if (col) {
+          const entry = entryByCol[col];
+          if (entry) location.hash = '#/collections/' + col + '/entries/' + entry;
+          else location.hash = '#/collections/' + col;
         }
-        document.getElementById('err').classList.remove('hide');
       })();
+
+      // Ensure user is logged in (if not, open the login modal)
+      document.addEventListener('DOMContentLoaded', () => {
+        if (window.netlifyIdentity) {
+          window.netlifyIdentity.on('init', (user) => {
+            if (!user) { window.netlifyIdentity.open('login'); }
+          });
+          try { window.netlifyIdentity.init({}); } catch(e){}
+        }
+      });
     </script>
   </head>
-  <body>
-    <a id="back" href="/admin">🏠 Til panel</a>
-
-    <!-- Lastestatus og feil -->
-    <div id="status" class="center"><div>
-      <h3>Gjør klar editor …</h3>
-      <p class="muted">Hvis du ikke er innlogget, åpnes innlogging nå. Kryss av “remember” for å huskes på denne enheten.</p>
-    </div></div>
-    <div id="err" class="msg hide">Klarte ikke å laste editor fra CDN. Oppdater siden, eller prøv igjen senere.</div>
-
-    <!-- Her mountes CMS -->
-    <div id="nc-root"></div>
-
-    <script>
-      // Hent ønsket samling fra URL (?collection=meny|forside|dagens|aapningstider|media|workflow)
-      const params = new URLSearchParams(location.search);
-      const target = params.get('collection') || 'meny';
-
-      // JS-config (samme felter som før)
-      const CMS_CONFIG = {
-        backend: { name: 'git-gateway', branch: 'main' },
-        locale: 'nb',
-        media_folder: 'assets/uploads',
-        public_folder: '/assets/uploads',
-        editor: { preview: false },
-        collections: [
-          {
-            name: 'forside',
-            label: 'Forside-bilder',
-            files: [{
-              file: 'site_data/home.json',
-              name: 'home',
-              label: 'Forside',
-              format: 'json',
-              fields: [
-                { label: "Velkomstbilde (ved 'Velkommen')", name: "hero_image", widget: "image", required: false },
-                { label: "Alternativ tekst (SEO/tilg.)", name: "hero_image_alt", widget: "string", required: false },
-                { label: "Smakebiter fra disken", name: "collage", widget: "list", collapsed: true, summary: "{{title}}", fields: [
-                  { label: "Tittel (kort)", name: "title", widget: "string" },
-                  { label: "Bilde", name: "image", widget: "image" },
-                  { label: "Bildetekst (valgfritt)", name: "caption", widget: "string", required: false }
-                ] }
-              ]
-            }]
-          },
-          {
-            name: 'dagens',
-            label: 'Dagens middag',
-            files: [{
-              file: 'site_data/dagens.json',
-              name: 'dagens',
-              label: 'Dagens middag',
-              format: 'json',
-              fields: [
-                { label: "Overskrift", name: "title", widget: "string", default: "Dagens middag" },
-                { label: "Undertekst (liten)", name: "subtitle", widget: "string", required: false, hint: "F.eks. 'Serveres 12–16'." },
-                { label: "Bilde (valgfritt)", name: "image", widget: "image", required: false },
-                { label: "Retter", name: "items", widget: "list", collapsed: true, summary: "{{title}} — {{price}}", fields: [
-                  { label: "Navn", name: "title", widget: "string" },
-                  { label: "Pris", name: "price", widget: "string" }
-                ] },
-                { label: "Oppdatert", name: "updated", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false }
-              ]
-            }]
-          },
-          {
-            name: 'meny',
-            label: 'Meny',
-            files: [{
-              file: 'site_data/meny.json',
-              name: 'meny',
-              label: 'Kafémeny',
-              format: 'json',
-              fields: [
-                { label: "Kaffe & varme drikker", name: "hotdrinks", widget: "list", collapsed: true, summary: "{{title}} — {{price}}", fields: [
-                  { label: "Navn", name: "title", widget: "string" },
-                  { label: "Pris", name: "price", widget: "string" },
-                  { label: "Plantebasert (V)", name: "vegan", widget: "boolean", required: false, default: false }
-                ] },
-                { label: "Frokost & lunsj", name: "lunch", widget: "list", collapsed: true, summary: "{{title}} — {{price}}", fields: [
-                  { label: "Navn", name: "title", widget: "string" },
-                  { label: "Pris", name: "price", widget: "string" },
-                  { label: "Plantebasert (V)", name: "vegan", widget: "boolean", required: false, default: false }
-                ] },
-                { label: "Søtt & kaldt", name: "dessert", widget: "list", collapsed: true, summary: "{{title}} — {{price}}", fields: [
-                  { label: "Navn", name: "title", widget: "string" },
-                  { label: "Pris", name: "price", widget: "string" },
-                  { label: "Plantebasert (V)", name: "vegan", widget: "boolean", required: false, default: false }
-                ] }
-              ]
-            }]
-          },
-          {
-            name: 'aapningstider',
-            label: 'Åpningstider',
-            files: [{
-              file: 'site_data/hours.json',
-              name: 'hours',
-              label: 'Åpningstider',
-              format: 'json',
-              fields: [
-                { label: "Hverdager – åpner",  name: "weekdays_open",  widget: "string", default: "09:00" },
-                { label: "Hverdager – stenger", name: "weekdays_close", widget: "string", default: "18:00" },
-                { label: "Lørdag – åpner",     name: "saturday_open",  widget: "string", default: "09:00" },
-                { label: "Lørdag – stenger",    name: "saturday_close", widget: "string", default: "17:00" },
-                { label: "Notis (valgfri)",     name: "note",           widget: "string", required: false }
-              ]
-            }]
-          }
-        ]
-      };
-
-      function routeFor(key){
-        switch(key){
-          case 'forside':       return '#/collections/forside/entries/home';
-          case 'dagens':        return '#/collections/dagens/entries/dagens';
-          case 'meny':          return '#/collections/meny/entries/meny';
-          case 'aapningstider': return '#/collections/aapningstider/entries/hours';
-          case 'media':         return '#/media';
-          case 'workflow':      return '#/workflow';
-          default:              return '#/';
-        }
-      }
-
-      function ensureLoginThenInit(){
-        return new Promise((resolve) => {
-          if (!window.netlifyIdentity){
-            resolve(false); return;
-          }
-          const user = window.netlifyIdentity.currentUser();
-          if (user){
-            CMS.init({ config: CMS_CONFIG });
-            document.getElementById('status').classList.add('hide');
-            resolve(true);
-          } else {
-            // Åpne innlogging uten overlay som dekker
-            window.netlifyIdentity.on('login', () => {
-              CMS.init({ config: CMS_CONFIG });
-              document.getElementById('status').classList.add('hide');
-              resolve(true);
-            });
-            window.netlifyIdentity.open('login'); // bruk "remember" i modalen
-          }
-        });
-      }
-
-      // Når Decap er lastet, start flyten
-      (async function bootWhenReady(){
-        // Vent til decap finnes
-        let tries = 0; while(typeof CMS === 'undefined' && tries < 200){ await new Promise(r=>setTimeout(r,50)); tries++; }
-        if (typeof CMS === 'undefined'){ document.getElementById('err').classList.remove('hide'); return; }
-
-        const ok = await ensureLoginThenInit();
-        if (!ok) return;
-
-        // Naviger til ønsket seksjon
-        location.hash = routeFor(target);
-      })();
-    </script>
-  </body>
+  <body></body>
 </html>
