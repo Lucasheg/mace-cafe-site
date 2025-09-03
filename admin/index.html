@@ -1,447 +1,189 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="no">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Macé Cafe – Kafé i Storgata 42, Molde</title>
-  <meta name="description" content="Kaffe, lunsj og noe søtt – midt i Molde sentrum. Velkommen!" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
-
-  <!-- Netlify Identity for /admin -->
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded',function(){
-      if (window.netlifyIdentity) {
-        window.netlifyIdentity.on('init',(user)=>{
-          if(!user){ window.netlifyIdentity.on('login',()=>{ location.href='/admin/'; }); }
-        });
+  <head>
+    <meta charset="utf-8" />
+    <title>Macé Cafe — Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root{
+        --fs-p:16px; --s-8:8px; --s-12:12px; --s-16:16px; --s-20:20px; --s-24:24px; --s-32:32px;
+        --bg:#fbfbfb; --panel:#ffffff; --brand:#4A3428; --fg:#111; --muted:#6b7280; --border:#e7e7e7; --radius:14px;
       }
-    });
-  </script>
+      *{ box-sizing:border-box } html,body{ height:100% }
+      body{ margin:0; background:var(--bg); color:var(--fg); font: 16px/1.5 Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif }
+      .hidden{ display:none !important }
 
-  <style>
-    /* ===== Design tokens ===== */
-    :root{
-      /* Colors (60/30/10) */
-      --neutral:#F3EEE9; --secondary:#FFFFFF; --accent:#A36B3F;
-      --ink:#1A1410; --espresso:#4A3428; --latte:#C8B7A6; --sea:#8FA8BF;
+      /* Login overlay */
+      .lock{ position:fixed; inset:0; display:grid; place-items:center; background:rgba(255,255,255,.92); backdrop-filter: blur(4px); z-index:9999; padding:var(--s-16) }
+      .panel{ background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:var(--s-24); max-width:520px; width:min(92%,520px); box-shadow:0 12px 30px rgba(0,0,0,.12); text-align:center }
+      .panel h1{ margin:.2rem 0 .6rem; font-size:25px; letter-spacing:-0.005em }
+      .panel p{ margin:.2rem 0 var(--s-16); color:var(--muted) }
+      .btn{ display:inline-flex; align-items:center; gap:.5rem; padding:.7rem 1rem; border-radius:12px; text-decoration:none; font-weight:600; border:1px solid var(--border); background:#fff; color:#111; cursor:pointer }
+      .btn:hover{ background:#f7f7f7 }
 
-      /* Type (Major Third) */
-      --fs-p:16px;
-      --fs-h6:20px; --fs-h5:25px; --fs-h4:31.25px; --fs-h3:39.06px; --fs-h2:48.83px; --fs-h1:61.04px;
-      --ls-h6:-0.005em; --ls-h3:-0.015em; --ls-h1:-0.02em;
-      --lh-p:1.5; --lh-h4:1.3; --lh-h2:1.1; --lh-h1:1;
+      /* Layout */
+      .layout{ display:grid; grid-template-columns:280px 1fr; min-height:100dvh }
+      .sidebar{ position:sticky; top:0; align-self:start; height:100dvh; overflow:auto; background:var(--panel); border-right:1px solid var(--border) }
+      .sb-inner{ padding:var(--s-16) 14px; display:grid; gap:var(--s-16) }
+      .brand{ display:flex; gap:.5rem; align-items:baseline; padding:4px 4px 6px }
+      .brand b{ color:var(--brand); font-weight:800; font-size:20px; letter-spacing:-0.005em }
+      .brand small{ color:var(--muted) }
+      .nav{ display:grid; gap:var(--s-8); margin-top:6px }
+      .nav a{ display:flex; align-items:center; gap:.6rem; padding:.8rem 1rem; border-radius:12px; text-decoration:none; color:inherit; border:1px solid var(--border); background:#fff; font-weight:600; cursor:pointer }
+      .nav a:hover{ background:#f6f6f6 }
+      .divider{ height:1px; background:var(--border); margin:10px 0 }
+      .content{ padding:var(--s-16); display:grid; gap:var(--s-16) }
+      .toolbar{ background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:10px 12px; display:flex; gap:var(--s-16); align-items:center; justify-content:space-between; flex-wrap:wrap }
+      .search{ flex:1; min-width:220px; display:flex; align-items:center; gap:6px; border:1px solid var(--border); border-radius:12px; padding:.6rem .8rem; background:#fff }
+      .search input{ border:0; outline:0; background:transparent; width:100% }
+      .dash{ display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s-16) }
+      .tile{ background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:var(--s-16); text-decoration:none; color:inherit; display:grid; gap:8px; cursor:pointer }
+      .tile:hover{ box-shadow:0 10px 22px rgba(0,0,0,.06) }
+      .muted{ color:var(--muted) }
 
-      /* Spacing 8pt */
-      --s-8:8px; --s-16:16px; --s-24:24px; --s-32:32px; --s-40:40px; --s-48:48px; --s-56:56px; --s-64:64px; --s-80:80px; --s-96:96px;
-
-      --max:1200px; --radius:16px; --radius-lg:24px;
-    }
-    *,*::before,*::after{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; color:var(--ink); background:var(--neutral);
-      font: var(--fs-p)/var(--lh-p) Inter,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans";
-      letter-spacing:.01em;
-    }
-    img{max-width:100%; display:block}
-    a{color:inherit; text-decoration:none}
-    .wrap{width:min(100%, var(--max)); margin-inline:auto; padding-inline: clamp(var(--s-16), 4vw, var(--s-32))}
-    .h{font-family:"Playfair Display",serif}
-    h1.h{ font-size: clamp(36px, 6vw, var(--fs-h1)); line-height: var(--lh-h1); letter-spacing: var(--ls-h1); margin:0 0 var(--s-16) }
-    h2.h{ font-size: clamp(28px, 4.5vw, var(--fs-h2)); line-height: var(--lh-h2); margin:0 0 var(--s-16) }
-    h3.h{ font-size: clamp(24px, 3.8vw, var(--fs-h3)); letter-spacing: var(--ls-h3); margin:0 0 var(--s-16) }
-
-    .btn{display:inline-block; padding:12px 16px; border-radius:12px; font-weight:600; background:var(--espresso); color:#fff; box-shadow:0 8px 16px rgba(0,0,0,.15); transition:transform .2s, box-shadow .2s, background .2s}
-    .btn:hover{transform:translateY(-2px); box-shadow:0 12px 20px rgba(0,0,0,.18)}
-    .btn--ghost{background:transparent; color:var(--espresso); border:2px solid var(--espresso)}
-    .chip{border-radius:999px; padding:6px 10px; background:rgba(255,255,255,.7); border:1px solid rgba(0,0,0,.06)}
-
-    /* ===== Header (full-bleed background) ===== */
-    header{position:static}
-    .nav{ position:relative; }
-    .nav::before{
-      content:""; position:absolute; inset:0; left:50%; transform:translateX(-50%);
-      width:100vw; height:100%; z-index:-1;
-      background:linear-gradient(180deg, rgba(255,255,255,.62), rgba(255,255,255,.35));
-      border-bottom:1px solid rgba(0,0,0,.08);
-      backdrop-filter: blur(10px);
-    }
-    .nav .wrap{
-      display:flex; align-items:center; justify-content:space-between; gap:var(--s-16);
-      padding-block: var(--s-16);
-    }
-    .brand .name{ font-family:"Playfair Display",serif; font-weight:800; letter-spacing:.02em; font-size: clamp(24px, 3.6vw, 40px); line-height:1; }
-    .menu{display:flex; gap:var(--s-16); align-items:center}
-    .menu a{padding:2px 0; position:relative; font-weight:600; opacity:.95;}
-    .menu a::after{content:""; position:absolute; left:0; bottom:-4px; height:2px; width:0; background:var(--espresso); transition:width .22s}
-    .menu a:hover::after{ width:100% }
-
-    /* ===== Hero ===== */
-    .hero{ position:relative; overflow:hidden; isolation:isolate; color:var(--espresso) }
-    .hero__bg{
-      position:absolute; inset:0; z-index:-1;
-      background:
-        radial-gradient(1000px 420px at 85% -10%, rgba(163,107,63,.22), transparent 55%),
-        radial-gradient(760px 520px at -10% 10%, rgba(79,113,140,.14), transparent 60%),
-        radial-gradient(640px 420px at 50% 110%, rgba(200,183,166,.30), transparent 60%),
-        linear-gradient(180deg, #ffffff, var(--neutral));
-    }
-    .hero .wrap{
-      display:grid; grid-template-columns:1.1fr .9fr; align-items:start;
-      gap: var(--s-32);
-      /* small extra space under header */
-      padding-block: clamp(40px, 7vw, 88px);
-    }
-    .hero p{max-width:52ch; opacity:.95; margin:0 0 var(--s-16)}
-    .hero__cta{display:flex; gap:var(--s-16); align-items:center; flex-wrap:wrap; margin-top:var(--s-16)}
-    .hero__cta a:first-child{ order:2 } /* Se meny (ghost) */
-    .hero__cta a:last-child{ order:1 }  /* Finn veien (primary) */
-
-    /* Hero image */
-    .hero__photo{
-      justify-self:end; width:min(468px,100%); border-radius:var(--radius-lg); overflow:hidden; position:relative;
-      box-shadow:0 16px 32px rgba(0,0,0,.18); transform:rotate(-.5deg);
-    }
-    .hero__photo::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.12) 85%); pointer-events:none }
-
-    /* Spotlight (Dagens) */
-    .spot{
-      grid-column:1 / -1; display:grid; grid-template-columns:1.1fr .9fr; align-items:stretch; gap:var(--s-16);
-      margin-top:var(--s-8); border-radius:var(--radius-lg); overflow:hidden;
-      background:var(--secondary); border:1px solid rgba(163,107,63,.28); box-shadow:0 14px 28px rgba(0,0,0,.10);
-    }
-    .spot__body{ padding: var(--s-24) var(--s-24) var(--s-24) clamp(var(--s-16), 3vw, var(--s-32)); position:relative; z-index:1 }
-    .spot__eyebrow{ font-weight:700; letter-spacing:.08em; font-size:13px; text-transform:uppercase; color:var(--espresso); opacity:.85 }
-    .spot__title{ font-family:"Playfair Display",serif; font-weight:800; font-size: clamp(22px, 3.2vw, 34px); margin:.2rem 0 .2rem }
-    .spot__subtitle{ opacity:.85; margin:0 0 var(--s-8) }
-    .spot__list{ display:flex; flex-wrap:wrap; gap:var(--s-8); margin:0; padding:0; list-style:none }
-    .spot__chip{ background:rgba(255,255,255,.9); border:1px solid rgba(0,0,0,.06); padding:8px 12px; border-radius:999px; font-weight:600 }
-    .spot__art{ position:relative; overflow:hidden }
-    .spot__art img{ width:100%; height:100%; object-fit:cover }
-
-    /* Info card */
-    .hero__card{ border-radius:var(--radius); background:var(--secondary); border:1px solid rgba(0,0,0,.08); box-shadow:0 10px 20px rgba(0,0,0,.10); padding:var(--s-16); grid-column:1 / -1 }
-    .kv{display:grid; grid-template-columns:auto 1fr; gap:4px var(--s-16); align-items:center; font-size:15px}
-    .kv dt{font-weight:700; color:var(--espresso)}
-    .kv dd{margin:0; opacity:.9}
-
-    /* Collage */
-    .collage{padding-block: clamp(var(--s-32), 8vw, var(--s-96))}
-    .collage p{max-width:60ch; opacity:.85; margin:0 0 var(--s-16)}
-    .grid{margin-top:var(--s-16); display:grid; grid-template-columns:repeat(12,1fr); gap:var(--s-16)}
-    .card{position:relative; border-radius:20px; overflow:hidden; background:linear-gradient(180deg,#fff,#fff8); border:1px solid rgba(0,0,0,.06); box-shadow:0 12px 24px rgba(0,0,0,.08); transition:transform .2s, box-shadow .2s}
-    .card:hover{ transform:translateY(-4px); box-shadow:0 16px 28px rgba(0,0,0,.12) }
-    .card__img{aspect-ratio:4/3; display:grid; place-items:center; background:linear-gradient(120deg, var(--latte), var(--neutral)); color:var(--espresso); font-weight:700}
-    .card__cap{position:absolute; inset:auto var(--s-16) var(--s-16) var(--s-16); padding:8px 12px; border-radius:12px; background:rgba(255,255,255,.9); font-size:.95rem}
-    .span-3{grid-column:span 3} .span-4{grid-column:span 4} .span-5{grid-column:span 5} .span-6{grid-column:span 6} .row-2{grid-row:span 2}
-
-    /* Meny */
-    .menu-section{padding-block: clamp(var(--s-32), 8vw, var(--s-96)); background:linear-gradient(180deg, transparent, rgba(200,183,166,.18))}
-    .menu-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:var(--s-16); margin-top:var(--s-16)}
-    .menu-card{border-radius:24px; border:1px solid rgba(0,0,0,.08); overflow:hidden; background:var(--secondary)}
-    .menu-card__inner{padding:var(--s-24)}
-    .menu-title{font-weight:700; color:var(--espresso)}
-    .menu-item{display:flex; justify-content:space-between; gap:var(--s-16); padding:var(--s-8) 0; border-bottom:1px dashed rgba(0,0,0,.08)}
-    .menu-item:last-child{border-bottom:none}
-    .v{display:inline-grid; place-items:center; width:22px; height:22px; border-radius:999px; border:1px solid rgba(0,0,0,.15); font-size:12px}
-
-    /* Besøk oss */
-    .visit{padding-block: clamp(var(--s-32), 8vw, var(--s-96))}
-    .mapframe{ border-radius:var(--radius); overflow:hidden; box-shadow:0 16px 32px rgba(0,0,0,.10); border:1px solid rgba(0,0,0,.08); background:var(--secondary); width:100% }
-    .map{aspect-ratio:16/9; border:0; width:100%}
-    .mapbar{display:flex; justify-content:space-between; gap:var(--s-16); align-items:center; padding:var(--s-8) var(--s-16)}
-
-    footer .wrap{display:flex; justify-content:space-between; align-items:center; gap:var(--s-16); flex-wrap:wrap; padding-block:var(--s-16)}
-
-    /* Motion fallback */
-    @media (prefers-reduced-motion: no-preference){
-      .reveal{opacity:0; transform:translateY(14px); animation:reveal .7s ease both; animation-timeline:view(); animation-range:entry 10% cover 30%}
-      @keyframes reveal{to{opacity:1; transform:none}}
-    }
-
-    /* Desktop tweaks */
-    @media (min-width: 900px){
-      .hero__card{ grid-column: 2; }
-      .spot{ grid-template-columns:1.1fr .9fr; }
-      .mapframe{ width:66%; margin-inline:auto; }
-    }
-
-    /* ===== Mobile (fixed hero edge + larger image + real text wrap) ===== */
-    @media (max-width: 900px){
-      /* Soft, organic section edge */
-      .hero{
-        position:relative;
-        border-bottom-left-radius:16px;
-        border-bottom-right-radius:16px;
-        overflow:hidden;
+      /* Mobile-first admin improvements */
+      @media (max-width: 900px){
+        .layout{ grid-template-columns:1fr }
+        .sidebar{ position:static; height:auto; border-right:0; border-bottom:1px solid var(--border) }
+        .nav{
+          grid-template-columns:repeat(2, minmax(0,1fr));
+          gap:var(--s-12);
+        }
+        .nav a{ justify-content:center; padding:var(--s-12) var(--s-16); font-size:16px }
+        .dash{ grid-template-columns:1fr; }
+        .toolbar{ gap:var(--s-12) }
+        .search{ min-width:0 }
       }
-      .hero::after{
-        content:"";
-        position:absolute; left:0; right:0; bottom:-1px; height:56px;
-        background: linear-gradient(180deg, rgba(243,238,233,0) 0%, var(--neutral) 90%);
-        pointer-events:none;
-      }
-
-      .hero .wrap{ grid-template-columns:1fr; }
-      .intro{ position:relative; }
-      .hero__cta{ clear: both; margin-top: var(--s-8); }
-
-      .hero__photo{ position: static !important; right:auto !important; top:auto !important; z-index:auto !important; transform:none; }
-      .hero__photo.is-float{
-        float:right;
-        width:50vw; max-width:280px;                 /* larger */
-        border-radius:16px; transform:rotate(-3.5deg);
-        margin:0 0 var(--s-8) var(--s-16);
-        shape-outside: ellipse(50% 45% at 50% 50%);
-        -webkit-shape-outside: ellipse(50% 45% at 50% 50%);
-        box-shadow:0 14px 28px rgba(0,0,0,.20);
-      }
-
-      .spot{ grid-template-columns:1fr; }
-      .spot__art{ order:-1; aspect-ratio:16/9; }
-
-      .grid{
-        display:flex; overflow-x:auto; gap:var(--s-16);
-        padding:4px 6px var(--s-16);
-        scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
-      }
-      .grid::-webkit-scrollbar{display:none}
-      .card{ flex:0 0 86%; scroll-snap-align:start; }
-      .card__img{ aspect-ratio: 16 / 10; }
-      .card__cap{ position:static; background:transparent; margin: var(--s-8) var(--s-8) 2px; padding:0; }
-
-      .menu-grid{grid-template-columns:1fr}
-    }
-
-    /* Slim info card where we move it */
-    .hero__card.hero__card--slim{
-      grid-column:1 / -1; max-width:760px; margin:var(--s-8) auto 0; padding:var(--s-16); border-radius:16px; box-shadow:0 10px 22px rgba(0,0,0,.08)
-    }
-    .hero__card.hero__card--slim .kv{ font-size:15px }
-  </style>
-</head>
-<body>
-  <header>
-    <div class="nav">
-      <div class="wrap">
-        <div class="brand"><a class="name" href="/admin">Macé Cafe</a></div>
-        <div class="menu">
-          <a href="#meny">Meny</a>
-          <a href="https://www.instagram.com/macecafemolde/" target="_blank" rel="noopener">Instagram</a>
-        </div>
+    </style>
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  </head>
+  <body>
+    <!-- Login gate -->
+    <div id="gate" class="lock">
+      <div class="panel">
+        <h1>Logg inn for å fortsette</h1>
+        <p>Du må være innlogget for å bruke adminpanelet. Kryss av “Remember me” i modalen for å huskes på denne enheten.</p>
+        <button id="loginBtn" class="btn" type="button">Logg inn</button>
       </div>
     </div>
-  </header>
 
-  <section class="hero" id="hjem">
-    <div class="hero__bg" aria-hidden="true"></div>
-    <div class="wrap">
-      <div class="intro">
-        <h1 class="h">Velkommen til Macé Cafe</h1>
-        <p>Kaffe, lunsj og noe søtt – midt i Molde sentrum. Stikk innom for dagens middag eller finn et rolig hjørne inne.</p>
-        <div class="hero__cta">
-          <a class="btn btn--ghost" href="#meny">Se meny</a>
-          <a class="btn" href="https://maps.google.com/?q=Storgata+42,+6413+Molde" target="_blank" rel="noopener">Finn veien</a>
+    <!-- Dashboard -->
+    <div id="dashboard" class="layout hidden">
+      <aside class="sidebar">
+        <div class="sb-inner">
+          <div class="brand"><b>Macé Cafe</b> <small>Admin</small></div>
+          <div class="nav">
+            <a data-open="forside">🖼️ Forside-bilder</a>
+            <a data-open="dagens">⭐ Dagens middag</a>
+            <a data-open="meny">🍽️ Meny</a>
+            <a data-open="aapningstider">🕒 Åpningstider</a>
+          </div>
+          <div class="divider"></div>
+          <a class="btn" href="/">↩︎ Til forsiden</a>
+          <button id="authBtn" class="btn" type="button">Logg ut</button>
         </div>
-      </div>
-
-      <figure class="hero__photo reveal" id="hero-photo" style="display:none">
-        <img id="hero-img" src="" alt="">
-      </figure>
-
-      <!-- SPOTLIGHT -->
-      <section class="spot reveal" id="spotlight" style="display:none">
-        <div class="spot__body">
-          <div class="spot__eyebrow">Dagens</div>
-          <h3 class="spot__title h" id="spot-title">Dagens middag</h3>
-          <p class="spot__subtitle" id="spot-sub">Oppdateres daglig</p>
-          <ul class="spot__list" id="spot-list"></ul>
-        </div>
-        <div class="spot__art" id="spot-art" aria-hidden="true" style="display:none">
-          <img id="spot-img" src="" alt="">
-        </div>
-      </section>
-
-      <!-- Info-kort (flyttes under collage) -->
-      <aside class="hero__card reveal" aria-label="Nøkkelinformasjon">
-        <dl class="kv">
-          <dt>Adresse</dt><dd>Storgata 42, 6413 Molde</dd>
-          <dt>Telefon</dt><dd><a href="tel:+4791176800">+47 911 76 800</a></dd>
-          <dt>Åpent</dt><dd id="hours-line">Man–Fre 09:00 – 18:00 · Lør 09:00 – 17:00</dd>
-          <dt>Sosialt</dt><dd><a href="https://www.instagram.com/macecafemolde/" target="_blank" rel="noopener">@macecafemolde</a></dd>
-        </dl>
       </aside>
-    </div>
-  </section>
 
-  <section class="collage wrap" aria-label="Smakebiter">
-    <div style="display:flex; align-items:flex-end; gap:var(--s-16); flex-wrap:wrap">
-      <h2 class="h">Smakebiter fra disken</h2>
-      <span class="chip">Sveip for flere</span>
-    </div>
-    <p>Et lite utvalg av hva du kan forvente – endres jevnlig etter råvarer og sesong.</p>
-    <div class="grid" id="collage-grid" role="list"></div>
-  </section>
-
-  <!-- Info-kort flyttes hit (slank) av JS -->
-
-  <section id="meny" class="menu-section" aria-label="Meny">
-    <div class="wrap">
-      <h2 class="h" style="margin:0 0 var(--s-8)">Meny (utvalg)</h2>
-      <p style="opacity:.85; margin:0 0 var(--s-16)">Dette styres fra adminpanelet.</p>
-
-      <div class="menu-grid">
-        <div class="menu-card reveal"><div class="menu-card__inner" id="menu-hot"><div class="menu-title">Kaffe & varme drikker</div></div></div>
-        <div class="menu-card reveal"><div class="menu-card__inner" id="menu-lunch"><div class="menu-title">Frokost & lunsj</div></div></div>
-        <div class="menu-card reveal"><div class="menu-card__inner" id="menu-sweet"><div class="menu-title">Søtt & kaldt</div></div></div>
-      </div>
-
-      <div style="margin-top:var(--s-16); display:flex; gap:var(--s-16); flex-wrap:wrap">
-        <a class="btn btn--ghost" href="#hjem">Til toppen</a>
-        <a class="btn" target="_blank" rel="noopener" href="https://maps.google.com/?q=Storgata+42,+6413+Molde">Veibeskrivelse</a>
-      </div>
-    </div>
-  </section>
-
-  <section class="visit" aria-label="Besøk oss">
-    <div class="wrap">
-      <h2 class="h" style="margin:0 0 var(--s-8)">Besøk oss</h2>
-      <p>Finn oss midt i Storgata – uteservering mot torget når været tillater det.</p>
-      <div class="mapframe reveal" style="margin-top:var(--s-16)">
-        <iframe class="map" title="Kart Storgata 42 Molde" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Storgata%2042%2C%206413%20Molde&output=embed"></iframe>
-        <div class="mapbar">
-          <span>Storgata 42, 6413 Molde</span>
-          <a class="btn" style="padding:10px 14px" target="_blank" rel="noopener" href="https://maps.google.com/?q=Storgata+42,+6413+Molde">Veibeskrivelse</a>
+      <main class="content">
+        <div class="toolbar">
+          <div class="search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#999" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="#999" stroke-width="2"/></svg>
+            <input type="search" placeholder="Søk (Enter åpner Meny)" onkeydown="if(event.key==='Enter'){ go('meny'); }">
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn" type="button" onclick="go('media')">Mediebibliotek</button>
+            <button class="btn" type="button" onclick="go('workflow')">Arbeidsflyt</button>
+          </div>
         </div>
-      </div>
+
+        <div class="dash">
+          <div class="tile" onclick="go('forside')">
+            <strong>Forside-bilder</strong><span class="muted">Velkomstbilde + smakebiter</span>
+          </div>
+          <div class="tile" onclick="go('dagens')">
+            <strong>Dagens middag</strong><span class="muted">Tittel, undertekst, <b>bilde</b>, retter</span>
+          </div>
+          <div class="tile" onclick="go('meny')">
+            <strong>Meny</strong><span class="muted">Retter og priser</span>
+          </div>
+          <div class="tile" onclick="go('aapningstider')">
+            <strong>Åpningstider</strong><span class="muted">Tider og notis</span>
+          </div>
+        </div>
+      </main>
     </div>
-  </section>
 
-  <footer>
-    <div class="wrap">
-      <div>&copy; <span id="year"></span> Macé Cafe · Org.nr. 933 813 142</div>
-      <div style="opacity:.8">Designsystem: 60/30/10 · 12/4 kolonner · 8-punkt spacing</div>
-    </div>
-  </footer>
+    <script>
+      const gate = document.getElementById('gate');
+      const dash = document.getElementById('dashboard');
+      const authBtn = document.getElementById('authBtn');
+      const loginBtn = document.getElementById('loginBtn');
 
-  <script>
-    // Årstall
-    document.getElementById('year').textContent = new Date().getFullYear();
+      function showGate(){ gate.classList.remove('hidden'); dash.classList.add('hidden'); }
+      function showDash(){ dash.classList.remove('hidden'); gate.classList.add('hidden'); }
 
-    // Reveal fallback
-    if (!CSS.supports('animation-timeline: view()')){
-      const io = new IntersectionObserver((entries)=>{
-        entries.forEach(e=>{ if(e.isIntersecting){ e.target.style.transition='opacity .6s, transform .6s'; e.target.style.opacity=1; e.target.style.transform='none'; io.unobserve(e.target)} })
-      }, {threshold:.2});
-      document.querySelectorAll('.reveal').forEach(el=>{ el.style.opacity=0; el.style.transform='translateY(14px)'; io.observe(el) })
-    }
-
-    /* Mobile hero: one-shot alignment (prevents infinite stretch) */
-    function floatHeroOnMobile(){
-      var fig=document.getElementById('hero-photo'), img=document.getElementById('hero-img'),
-          intro=document.querySelector('.intro'), cta=document.querySelector('.hero__cta');
-      if(!fig||!img||!intro||!cta) return;
-      var mm=window.matchMedia('(max-width: 900px)'); if(!mm.matches) return;
-
-      var firstP=intro.querySelector('p'); if(firstP && fig.parentElement!==intro){ intro.insertBefore(fig, firstP); }
-      fig.classList.add('is-float'); fig.style.display='block';
-
-      function alignOnce(){
-        var introRect=intro.getBoundingClientRect(), figRect=fig.getBoundingClientRect(), ctaRect=cta.getBoundingClientRect();
-        var desiredBottom=(ctaRect.top - introRect.top) + ctaRect.height;
-        var desiredTop=desiredBottom - figRect.height;
-        var MAX_SHIFT=64; var clamped=Math.max(0, Math.min(desiredTop, MAX_SHIFT));
-        clamped=Math.round(clamped/8)*8; fig.style.marginTop=clamped+'px';
-      }
-      if(!img.complete){ img.addEventListener('load', ()=>requestAnimationFrame(alignOnce), {once:true}); } else { requestAnimationFrame(alignOnce); }
-      window.addEventListener('orientationchange', ()=>setTimeout(alignOnce,150));
-    }
-
-    /* Move info card after collage & slim it */
-    document.addEventListener('DOMContentLoaded', function(){
-      var info=document.querySelector('.hero__card'), collage=document.querySelector('.collage');
-      if(info && collage){ collage.insertAdjacentElement('afterend', info); info.classList.add('hero__card--slim'); }
-    });
-  </script>
-
-  <!-- Data fetch / bind -->
-  <script>
-  (async () => {
-    const q=(s)=>document.querySelector(s);
-    try {
-      const [homeRes, menyRes, hoursRes, dagensRes] = await Promise.all([
-        fetch('/site_data/home.json',{cache:'no-store'}),
-        fetch('/site_data/meny.json',{cache:'no-store'}),
-        fetch('/site_data/hours.json',{cache:'no-store'}),
-        fetch('/site_data/dagens.json',{cache:'no-store'})
-      ]);
-      const home = await homeRes.json().catch(()=>({}));
-      const meny = await menyRes.json().catch(()=>({}));
-      const hours= await hoursRes.json().catch(()=>({}));
-      const dagens=await dagensRes.json().catch(()=>({}));
-
-      // HERO
-      if(home.hero_image){
-        const fig=q('#hero-photo'), img=q('#hero-img');
-        img.src=home.hero_image; img.alt=home.hero_image_alt || "Macé Cafe"; fig.style.display='block';
-        floatHeroOnMobile();
+      async function verifyToken(user){
+        try{
+          // Ensure a valid JWT before showing dashboard
+          await user.jwt(); // refreshes if needed
+          return true;
+        }catch(e){
+          console.warn('JWT refresh failed:', e);
+          return false;
+        }
       }
 
-      // Dagens
-      const spot=q('#spotlight');
-      if(Array.isArray(dagens.items) && dagens.items.length){
-        const title=q('#spot-title'), sub=q('#spot-sub'), list=q('#spot-list'), artWrap=q('#spot-art'), artImg=q('#spot-img');
-        if(dagens.title) title.textContent=dagens.title;
-        if(dagens.subtitle) sub.textContent=dagens.subtitle;
-        list.innerHTML=''; dagens.items.forEach(i=>{ const li=document.createElement('li'); li.className='spot__chip'; li.textContent=i.price?`${i.title} ${i.price}`:i.title; list.appendChild(li); });
-        if(dagens.image){ artImg.src=dagens.image; artImg.alt=(dagens.title||'Dagens rett')+' – bilde'; artWrap.style.display='block'; } else { artWrap.style.display='none'; }
-        spot.style.display='grid';
+      async function syncAuthUI(){
+        const id = window.netlifyIdentity;
+        if(!id) return;
+
+        const user = id.currentUser();
+        if(user){
+          const ok = await verifyToken(user);
+          if(ok){ showDash(); }
+          else { try{ id.logout(); }catch(e){} showGate(); }
+        }else{
+          showGate();
+        }
       }
 
-      // Meny
-      function fillMenu(id, items){
-        const box=document.getElementById(id); if(!box||!items) return;
-        [...box.querySelectorAll('.menu-item')].forEach(el=>el.remove());
-        items.forEach(it=>{
-          const row=document.createElement('div'); row.className='menu-item';
-          const left=document.createElement('span'); left.textContent=it.title;
-          if(it.vegan){ const v=document.createElement('span'); v.className='v'; v.title='Plantebasert'; v.textContent='V'; left.append(' ',v); }
-          const right=document.createElement('span'); right.textContent=it.price;
-          row.append(left,right); box.appendChild(row);
-        });
-      }
-      fillMenu('menu-hot',meny.hotdrinks); fillMenu('menu-lunch',meny.lunch); fillMenu('menu-sweet',meny.dessert);
-
-      // Åpningstider
-      const hoursLine=q('#hours-line');
-      if(hoursLine && hours.weekdays_open && hours.weekdays_close && hours.saturday_open && hours.saturday_close){
-        hoursLine.textContent=`Man–Fre ${hours.weekdays_open} – ${hours.weekdays_close} · Lør ${hours.saturday_open} – ${hours.saturday_close}`;
+      function hardReloadToCleanState(){
+        // Ensures CMS + Git Gateway see the fresh token/session
+        window.location.replace('/admin/');
       }
 
-      // Collage
-      const grid=q('#collage-grid'); grid.innerHTML='';
-      const items=Array.isArray(home.collage)?home.collage:[];
-      if(items.length){
-        const spans=['span-5 row-2','span-3','span-4 row-2','span-6','span-6']; const rots=[-1.6,.8,-.6,.6,-.4];
-        items.forEach((it,idx)=>{
-          const card=document.createElement('article'); card.className=`card ${spans[idx%spans.length]}`; card.setAttribute('role','listitem');
-          const imgBox=document.createElement('div'); imgBox.className='card__img';
-          if(it.image){ const im=document.createElement('img'); im.src=it.image; im.alt=it.title||'Smakebit'; im.loading='lazy'; im.style.width='100%'; im.style.height='100%'; im.style.objectFit='cover'; imgBox.appendChild(im); }
-          else { imgBox.textContent=it.title||'Smakebit'; }
-          const cap=document.createElement('div'); cap.className='card__cap'; cap.textContent=it.caption||it.title||'';
-          card.append(imgBox,cap); grid.appendChild(card);
-        });
-      }
-    } catch(e){ console.warn('Kunne ikke laste CMS-data:', e); }
-  })();
-  </script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const id = window.netlifyIdentity;
+        if (!id) return;
 
-  <!-- Schema -->
-  <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"CafeOrCoffeeShop","name":"Macé Cafe","url":"https://macecafe.no/","telephone":"+47 911 76 800","address":{"@type":"PostalAddress","streetAddress":"Storgata 42","addressLocality":"Molde","postalCode":"6413","addressCountry":"NO"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday"],"opens":"09:00","closes":"18:00"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Saturday"],"opens":"09:00","closes":"17:00"}],"servesCuisine":["Coffee","Cafe","Bakery"],"menu":"https://macecafe.no/#meny","priceRange":"NOK"}
-  </script>
-</body>
+        // Ensure init even if script cached/early
+        try { id.init({}); } catch(e){ /* ignore */ }
+
+        // Sync immediately (prevents white screen if init fired before listeners)
+        syncAuthUI();
+
+        // Never let the overlay cover the login modal
+        id.on('open',  () => gate.classList.add('hidden'));
+        id.on('close', () => { if(!id.currentUser()) showGate(); });
+
+        // Lifecycle: land in a clean state after login/logout
+        id.on('init',   () => syncAuthUI());
+        id.on('login',  () => hardReloadToCleanState());
+        id.on('logout', () => hardReloadToCleanState());
+        id.on('error',  (e)=>{ console.warn('Identity error:', e); showGate(); });
+
+        loginBtn.onclick = () => id.open('login');   // tick “Remember me” in modal
+        authBtn.onclick  = () => id.logout();
+
+        // Safety net
+        setTimeout(syncAuthUI, 1500);
+      });
+
+      function go(target){
+        location.href = '/admin/editor.html?collection=' + encodeURIComponent(target);
+      }
+    </script>
+  </body>
 </html>
