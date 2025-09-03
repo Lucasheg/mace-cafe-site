@@ -5,28 +5,31 @@
     <title>Macé Cafe — Editor</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
-      /* Mobile-friendly base for the embedded CMS UI */
       html,body{height:100%}
       body{ margin:0; background:#fafafa; color:#111; font:16px/1.5 Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif }
-      /* Make form controls comfy on small screens */
-      @media (max-width: 900px){
-        /* CMS containers vary; these safe rules keep controls usable */
-        input, select, textarea { font-size:16px; } /* prevents iOS zoom */
+      .loading{ padding:16px; max-width:720px; margin:24px auto; }
+      .loading p{ margin:.4rem 0; color:#444 }
+      .err{ color:#b00020; font-weight:700 }
+      @media (max-width: 1024px){
+        input, select, textarea { font-size:16px; } /* prevent iOS zoom */
         .nc-appHeader{ position:sticky; top:0; z-index:5; }
-        /* let the main area use full width */
         #nc-root, .css-1, .nc-root { padding:0 !important; }
       }
     </style>
     <!-- Identity present so CMS can auth via Git Gateway -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-    <!-- Netlify CMS -->
-    <script src="https://unpkg.com/netlify-cms-app/dist/netlify-cms.js"></script>
+  </head>
+  <body>
+    <div id="boot" class="loading">
+      <h1 style="margin:.2rem 0 .4rem; font-size:20px">Laster editor …</h1>
+      <p>Hvis dette står her lenge, sjekker vi en reserve-CDN automatisk.</p>
+    </div>
+
     <script>
       // Deep-link to a collection or file-entry via query param
       (function(){
         const p = new URLSearchParams(location.search);
         const col = p.get('collection');
-        /* Map file collections to their single entry slugs (adjust if your config.yml uses different 'name:' fields) */
         const entryByCol = { dagens:'dagens', aapningstider:'hours', meny:'meny', forside:'home' };
         if (col) {
           const entry = entryByCol[col];
@@ -35,16 +38,43 @@
         }
       })();
 
-      // Ensure user is logged in (if not, open the login modal)
-      document.addEventListener('DOMContentLoaded', () => {
-        if (window.netlifyIdentity) {
-          window.netlifyIdentity.on('init', (user) => {
-            if (!user) { window.netlifyIdentity.open('login'); }
-          });
-          try { window.netlifyIdentity.init({}); } catch(e){}
-        }
-      });
+      function mountError(){
+        const boot = document.getElementById('boot');
+        if(!boot) return;
+        boot.innerHTML = '<h1 style="margin:.2rem 0 .4rem; font-size:20px" class="err">Kunne ikke laste editor</h1>'
+          + '<p>Vi klarte ikke å laste Netlify CMS fra flere kilder (unpkg/jsDelivr).</p>'
+          + '<p>Last siden på nytt, eller prøv igjen senere.</p>';
+      }
+
+      function initIdentity(){
+        if (!window.netlifyIdentity) return;
+        try { window.netlifyIdentity.init({}); } catch(e){}
+        window.netlifyIdentity.on('init', (user) => {
+          if (!user) { window.netlifyIdentity.open('login'); }
+        });
+      }
+
+      function loadCMSfrom(src, next){
+        var s = document.createElement('script');
+        s.src = src;
+        s.onload = function(){
+          // CMS auto-initializes by reading /admin/config.yml
+          var boot = document.getElementById('boot');
+          if (boot) boot.remove();
+        };
+        s.onerror = function(){
+          if (next) next();
+          else mountError();
+        };
+        document.head.appendChild(s);
+      }
+
+      // Try unpkg, then jsDelivr
+      initIdentity();
+      loadCMSfrom(
+        'https://unpkg.com/netlify-cms-app/dist/netlify-cms.js',
+        function(){ loadCMSfrom('https://cdn.jsdelivr.net/npm/netlify-cms-app@^2/dist/netlify-cms.js'); }
+      );
     </script>
-  </head>
-  <body></body>
+  </body>
 </html>
