@@ -71,7 +71,7 @@
     }
     .nav .wrap{
       display:flex; align-items:center; justify-content:space-between; gap:var(--s-16);
-      padding-block: var(--s-16);
+      padding-block: var(--s-16); /* little extra breathing room */
     }
     .brand .name{ font-family:"Playfair Display",serif; font-weight:800; letter-spacing:.02em; font-size: clamp(24px, 3.6vw, 40px); line-height:1; }
     .menu{display:flex; gap:var(--s-16); align-items:center}
@@ -92,8 +92,7 @@
     .hero .wrap{
       display:grid; grid-template-columns:1.1fr .9fr; align-items:start;
       gap: var(--s-32);
-      /* small extra space under header */
-      padding-block: clamp(40px, 7vw, 88px);
+      padding-block: clamp(40px, 7vw, 88px); /* small extra space below header */
     }
     .hero p{max-width:52ch; opacity:.95; margin:0 0 var(--s-16)}
     .hero__cta{display:flex; gap:var(--s-16); align-items:center; flex-wrap:wrap; margin-top:var(--s-16)}
@@ -169,20 +168,17 @@
       .mapframe{ width:66%; margin-inline:auto; }
     }
 
-    /* ===== Mobile (fixed hero edge + larger image + real text wrap) ===== */
+    /* ===== Mobile (remove boxy tint + larger image + real text wrap) ===== */
     @media (max-width: 900px){
-      /* Soft, organic section edge */
+      /* Kill the hero background & fade on mobile so there's no rectangular tint box */
+      .hero__bg{ display:none; }
+      .hero::after{ display:none; }
+
       .hero{
         position:relative;
         border-bottom-left-radius:16px;
         border-bottom-right-radius:16px;
-        overflow:hidden;
-      }
-      .hero::after{
-        content:"";
-        position:absolute; left:0; right:0; bottom:-1px; height:56px;
-        background: linear-gradient(180deg, rgba(243,238,233,0) 0%, var(--neutral) 90%);
-        pointer-events:none;
+        overflow:visible; /* content breathes without hard clipping */
       }
 
       .hero .wrap{ grid-template-columns:1fr; }
@@ -192,7 +188,7 @@
       .hero__photo{ position: static !important; right:auto !important; top:auto !important; z-index:auto !important; transform:none; }
       .hero__photo.is-float{
         float:right;
-        width:50vw; max-width:280px;                 /* larger */
+        width:50vw; max-width:280px;                 /* a touch larger */
         border-radius:16px; transform:rotate(-3.5deg);
         margin:0 0 var(--s-8) var(--s-16);
         shape-outside: ellipse(50% 45% at 50% 50%);
@@ -270,7 +266,7 @@
         <dl class="kv">
           <dt>Adresse</dt><dd>Storgata 42, 6413 Molde</dd>
           <dt>Telefon</dt><dd><a href="tel:+4791176800">+47 911 76 800</a></dd>
-          <dt>Åpent</dt><dd id="hours-line">Man–Fre 09:00 – 18:00 · Lør 09:00 – 17:00</dd>
+          <dt>Åpnet</dt><dd id="hours-line">Man–Fre 09:00 – 18:00 · Lør 09:00 – 17:00</dd>
           <dt>Sosialt</dt><dd><a href="https://www.instagram.com/macecafemolde/" target="_blank" rel="noopener">@macecafemolde</a></dd>
         </dl>
       </aside>
